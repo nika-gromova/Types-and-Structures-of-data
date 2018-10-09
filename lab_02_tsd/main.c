@@ -71,7 +71,7 @@ int main(void)
             for (int i = 0; i < TABLE; i++)
             {
                 keys[i].index = i;
-                keys[i].value = table[i].price;
+                keys[i].value = p_table[i]->price;
             }
             struct key *p_keys[TABLE];
             for (int i = 0; i < TABLE; i++)
@@ -166,7 +166,11 @@ int main(void)
                             printf("There are no such cars in the shop");
                     }
                     else
+                    {
+                        for (char ch = getchar(); ch != '\n'; ch = getchar())
+                            ;
                         printf("Incorrect input\n");
+                    }
                 }
                 else
                     printf("Incorrect input\n");
@@ -174,7 +178,7 @@ int main(void)
             if (choice == 4)
             {
                 printf("Sorted table of keys:\n");
-                sorting_keys(table, n, p_keys, sort_keys_cocktail);
+                sort_keys_bubble(n, p_keys);
                 print_keys(p_keys, n);
                 printf("\n\n\n");
                 printf("Unsorted initial table\n");
@@ -186,11 +190,11 @@ int main(void)
                 sort_table_bubble(n, p_table);
                 print_data(p_table, n);
             }
-            if (choice == 6)// Исправить
+            if (choice == 6)
             {
                 printf("Sorted table of keys and matching initial table:\n");
-                sorting_keys(table, n, p_keys, sort_keys_cocktail);
-                printf("\n\n\n");
+                sort_keys_bubble(n, p_keys);
+                printf("\n\n");
                 print_table_with_keys(p_keys, p_table, n);
             }
             if (choice == 7)
@@ -307,6 +311,7 @@ int main(void)
         else
             printf("!!! Error in reading file %s !!!\n", file_name);
         printf("\nDo you want to continue work? (1 - yes/ 0 - no):\n");
+
         if (scanf("%d", &cont) != 1 || cont != 1)
         {
             rc = OK;

@@ -3,16 +3,6 @@
 #include "io.h"
 #include <stdio.h>
 
-void sorting_keys(struct car *table, int n, struct key **p_key, void(*sort)(int, struct key **))
-{
-    for (int i = 0; i < n; i++)
-    {
-        p_key[i]->value = table[i].price;
-        p_key[i]->index = i;
-    }
-    sort(n, p_key);
-}
-
 void sort_keys_bubble(int n, struct key **p_key)
 {
     struct key *tmp;

@@ -239,6 +239,8 @@ int input_car(struct car *cur)
         goto error;
     error:
     {
+        for (char ch = getchar(); ch != '\n'; ch = getchar())
+            ;
         printf("Incorrect input\n");
         return INPUT_ERROR;
     }

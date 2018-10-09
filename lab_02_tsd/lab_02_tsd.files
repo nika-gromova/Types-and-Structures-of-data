@@ -1,0 +1,11 @@
+time.h
+time.c
+operations.c
+operations.h
+sorting.c
+sorting.h
+structure.h
+defines.h
+io.c
+io.h
+main.c

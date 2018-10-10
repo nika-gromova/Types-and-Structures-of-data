@@ -7,12 +7,12 @@ struct car
 {
     char model[MAX_LENGTH + 1];
     char country[MAX_LENGTH + 1];
-    unsigned int price;
     char color[MAX_LENGTH + 1];
+    unsigned int price;
     unsigned int mileage;
     unsigned int repairs;
     unsigned int owners;
-    int condition; // 1 - new; 2 - old
+    char condition; // 1 - new; 2 - old
     union
     {
         float new;

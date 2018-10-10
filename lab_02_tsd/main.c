@@ -88,7 +88,7 @@ int main(void)
             {
                 if (n < 45)
                 {
-                    struct car tmp = {"\0", "\0", 0, "\0"};
+                    struct car tmp = {"\0", "\0", "\0", 0};
                     struct car *p_tmp = &tmp;
                     rc = input_car(p_tmp);
                     if (rc == OK)
@@ -202,23 +202,20 @@ int main(void)
                 printf("Time measurements while sorting initial table VS while sorting table of keys\n");
                 {
                     unsigned long long t1, t2, time;
-                    double one_tick = 1 / (3.5 * 10000000000);
                     rc = read_data(file_name, p_table, n);
                     if (rc == OK)
                     {
-
                         t1 = tick();
                         for (int i = 0; i < 10; i++)
                             sort_table_bubble_2(n, table);
                         t2= tick();
                         time = ((t2 - t1) / 10);
-                        printf("\nTime for sorting the whole table: %.20lf\n", (double)(time * one_tick));
+                        printf("\nTime for sorting the whole table: %I64u\n", time);
                     }
                 }
 
                 {
                     unsigned long long t1, t2, time;
-                    double one_tick = 1 / (3.5 * 10000000000);
                     rc = read_data(file_name, p_table, n);
                     if (rc == OK)
                     {
@@ -227,7 +224,7 @@ int main(void)
                             sort_keys_bubble_2(n, keys);
                         t2= tick();
                         time = ((t2 - t1) / 10);
-                        printf("\nTime for sorting the keys table:  %.20lf\n", (double)(time * one_tick));
+                        printf("\nTime for sorting the keys table:  %I64u\n", time);
                     }
                 }
             }
@@ -236,7 +233,6 @@ int main(void)
                 printf("Time measurements while sorting table of keys (buble sort and cocktail sort) VS while sorting initial table (buble sort and cocktail sort)\n");
                 {
                     unsigned long long t1, t2, time;
-                    double one_tick = 1 / (3.5 * 10000000000);
                     rc = read_data(file_name, p_table, n);
                     if (rc == OK)
                     {
@@ -250,13 +246,12 @@ int main(void)
                             sort_keys_bubble_2(n, keys);
                         t2= tick();
                         time = ((t2 - t1) / 10);
-                        printf("\nTime for sorting the keys table with bubble sort:    %.20lf\n", (double)(time * one_tick));
+                        printf("\nTime for sorting the keys table with bubble sort:    %I64u\n", time);
                     }
                 }
 
                 {
                     unsigned long long t1, t2, time;
-                    long double one_tick = 1 / (3.5 * 10000000000);
                     rc = read_data(file_name, p_table, n);
                     if (rc == OK)
                     {
@@ -270,13 +265,12 @@ int main(void)
                             sort_keys_cocktail_2(n, keys);
                         t2= tick();
                         time = (t2 - t1) / 10;
-                        printf("\nTime for sorting the keys table with cocktail sort:  %.20lf\n\n", (double)(time * one_tick));
+                        printf("\nTime for sorting the keys table with cocktail sort:  %I64u\n\n", time);
                     }
                 }
 
                 {
                     unsigned long long t1, t2, time;
-                    long double one_tick = 1 / (3.5 * 10000000000);
                     rc = read_data(file_name, p_table, n);
                     if (rc == OK)
                     {
@@ -285,13 +279,12 @@ int main(void)
                             sort_table_bubble_2(n , table);
                         t2= tick();
                         time = (t2 - t1) / 10;
-                        printf("\nTime for sorting the whole table with bubble sort:   %.20lf\n", (double) (time * one_tick));
+                        printf("\nTime for sorting the whole table with bubble sort:   %I64u\n\n", time);
                     }
                 }
 
                 {
                     unsigned long long t1, t2, time;
-                    long double one_tick = 1 / (3.5 * 10000000000);
                     rc = read_data(file_name, p_table, n);
                     if (rc == OK)
                     {
@@ -300,7 +293,7 @@ int main(void)
                             sort_table_cocktail(n, table);
                         t2= tick();
                         time = (t2 - t1) / 10;
-                        printf("\nTime for sorting the whole table with cocktail sort: %.20lf\n", (double)(time * one_tick));
+                        printf("\nTime for sorting the whole table with cocktail sort: %I64u\n\n", time);
                     }
                 }
 

@@ -312,6 +312,6 @@ int main(void)
         }
         choice = 0;
     }
-    //printf("\n%d\n", rc);
+    //printf("\n%I64d\n", sizeof(struct car));
     return rc;
 }

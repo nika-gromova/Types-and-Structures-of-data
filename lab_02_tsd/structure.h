@@ -15,8 +15,8 @@ struct car
     char condition; // 1 - new; 2 - old
     union
     {
-        float new;
         int old;
+        float new;
     } years;
 };
 

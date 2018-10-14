@@ -99,6 +99,7 @@ int read_data(char *file_name, struct car **table, int n)
 {
     int rc = OK;
     char str[200];
+    char ch;
     FILE *f;
     f = fopen(file_name, "r");
     if (f)
@@ -120,7 +121,8 @@ int read_data(char *file_name, struct car **table, int n)
                 break;
             }
         }
-
+        if (fscanf(f, "%c", &ch) != '\n' && feof(f) == 0)
+            return READ_ERROR;
         fclose(f);
     }
     else
@@ -143,6 +145,11 @@ int read_line(char *str, int n)
     char ch;
     int i = 0;
     int flag_overflow = 0;
+    if ((ch = getchar()) != '\n')
+    {
+        str[i] = ch;
+        i++;
+    }
     while((ch = getchar()) != '\n' && ch != EOF)
     {
         if (i < n - 1)
@@ -150,7 +157,7 @@ int read_line(char *str, int n)
         else
             flag_overflow = 1;
     }
-    if (flag_overflow != 1)
+    if (flag_overflow == 0)
         str[i] = '\0';
     else
         i = 0;
@@ -165,7 +172,6 @@ int input_car(struct car *cur)
     int s;
     printf("Input model (1 to 15 symbols):\n");
     print_sep(15);
-    getchar();
     if ((s = read_line(ch1, 16)) > 0)
     {
         for (int i = 0; i < strlen(ch1); i++)

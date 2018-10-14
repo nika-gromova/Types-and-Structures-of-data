@@ -26,8 +26,8 @@ void info(void)
            "4. Printing sorted table of keys and unsorted initial table\n"
            "5. Printing sorted initial table\n"
            "6. Printing ordered initial table using sorted table of keys\n"
-           "7. Printing time measurements (in sec) for sorting table of keys VS sorting initial table\n"
-           "8. Printing time measurements (in sec) for different types of sorting\n"
+           "7. Printing time measurements (in ticks) for sorting table of keys VS sorting initial table\n"
+           "8. Printing time measurements (in ticks) for different types of sorting\n"
            "9. Printing table in file.\n\n");
 }
 
@@ -79,11 +79,14 @@ int main(void)
             while (choice < 1 || choice > 9)
             {
                 printf("Print 1 - 9:\n");
-                if (fscanf(stdin, "%s", input) == 1)
+                int k = read_line(input, 5);
+                printf("\n%d\n", k);
+                if ( k > 0)
                     choice = atoi(input);
                 else
                     choice = 0;
             }
+
             if (choice == 1)
             {
                 if (n < 45)
@@ -124,6 +127,8 @@ int main(void)
                     }
                     else
                     {
+                        for (char ch = getchar(); ch != '\n'; ch = getchar())
+                            ;
                         printf("Incorrect input");
                         rc = INPUT_ERROR;
                     }
@@ -140,7 +145,6 @@ int main(void)
                 char ch[15];
                 int low, high;
                 int in = 0;
-                getchar();
                 if (read_line(ch, 16) > 0)
                 {
                     printf("\nInput low and high bounds of price for search (format:a b):\n");
@@ -312,6 +316,6 @@ int main(void)
         }
         choice = 0;
     }
-    //printf("\n%I64d\n", sizeof(struct car));
+
     return rc;
 }

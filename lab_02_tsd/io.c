@@ -249,36 +249,17 @@ int input_car(struct car *cur)
                                     }
                                     return OK;
                                 }
-                                else
-                                    goto error;
                             }
-                            else
-                                goto error;
                         }
-                        else
-                            goto error;
                     }
-                    else
-                        goto error;
                 }
-                else
-                    goto error;
             }
-            else
-                goto error;
         }
-        else
-            goto error;
     }
-    else
-        goto error;
-    error:
-    {
-        for (char ch = getchar(); ch != '\n'; ch = getchar())
-            ;
-        printf("Incorrect input\n");
-        return INPUT_ERROR;
-    }
+    for (char ch = getchar(); ch != '\n'; ch = getchar())
+        ;
+    printf("Incorrect input\n");
+    return INPUT_ERROR;
 }
 
 /**

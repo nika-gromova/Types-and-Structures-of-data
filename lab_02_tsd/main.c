@@ -50,7 +50,8 @@ void info(void)
 int main(void)
 {
     char *file_name = "data.txt";
-    int rc = OK;
+    int rc_file = OK; // код возврата при работе со считыванием таблицы из файла
+    int rc = OK; // код возврата при работе с функциями меню
     struct car table[TABLE];
     int n;
 
@@ -77,12 +78,12 @@ int main(void)
     printf("Hello! This is a program simulating a database work.\n"
            "Table consist of several fields and contains information about available cars int the shop.\n"
            "Sorting field is price.\n");
-    rc = read_data(file_name, p_table, n);
+    rc_file = read_data(file_name, p_table, n);
     while (cont)
     {
         info();
         //rc = read_data(file_name, p_table, n);
-        if (rc == OK)
+        if (rc_file == OK)
         {
             struct key keys[TABLE];
             for (int i = 0; i < TABLE; i++)
@@ -322,8 +323,9 @@ int main(void)
             if (choice == 9)
                 print_data(p_table, n);
         }
-        else
+        else if (rc_file == OPEN_FILE_ERROR || rc_file == READ_ERROR)
             printf("!!! Error in reading file %s !!!\n", file_name);
+
         printf("\nDo you want to continue work? (1 - yes/ 0 - no):\n");
 
         if (scanf("%d", &cont) != 1 || cont != 1)

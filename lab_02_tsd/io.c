@@ -2,17 +2,23 @@
 #include "defines.h"
 #include "structure.h"
 
+/**
+ * @brief input_str Функция разбивает строку str на значащие слова и записывает данные в поля структуры table_element
+ * @param str [in] - введенная строка
+ * @param table_element [in] - указатель на структуру
+ * @return  READ_ERROR, если не удалось разделить строку на нужное количество слов; OK, если функция отработала успешно.
+ */
 int input_str(char *str, struct car *table_element)
 {
-    char *sep = "|";
-    char *istr = '\0';
-    unsigned int num;
-    float condition;
-    istr = strtok(str, sep);
-    if (istr)
+    char *sep = "|"; // разделитель в строке
+    char *istr = '\0'; // символ конца строки
+    unsigned int num; // переменная для записи целочисленного положительного числа
+    float condition; // переменная для записи состояния машины (новая или старая)
+    istr = strtok(str, sep); // strtok - встроенная функция, разбивающая строку str на подстроки по разделителю sep
+    if (istr) // если подстрока выделена успешно
         for (int i = 0; i < strlen(istr) + 1; i++)
-            table_element->model[i] = istr[i];
-    else
+            table_element->model[i] = istr[i]; // запись полученного значения в поле структуры
+    else // если выделить подстроку не удалось
         return READ_ERROR;
 
     istr = strtok(NULL, sep);
@@ -95,6 +101,14 @@ int input_str(char *str, struct car *table_element)
     return OK;
 }
 
+/**
+ * @brief read_data Функция считывает строки из файла, отправляя их на обработку в функцию input_str
+ * @param file_name [in] - имя файла
+ * @param table [in] - указатель на массив указателей на структуры
+ * @param n [in] - размерность массива структур
+ * @return READ_ERROR, если правильно файл прочитать не удалось; OPEN_FILE_ERROR, если не удалось открыть файл;
+ * OK, если чтение прошло успешно.
+ */
 int read_data(char *file_name, struct car **table, int n)
 {
     int rc = OK;
@@ -133,6 +147,10 @@ int read_data(char *file_name, struct car **table, int n)
     return rc;
 }
 
+/**
+ * @brief print_sep Функция печатает разделительные символы для удобного вывода таблицы
+ * @param n [in] - количество символов-разделителей
+ */
 void print_sep(int n)
 {
     for (int i = 0; i < n; i++)
@@ -140,6 +158,12 @@ void print_sep(int n)
     printf("\n");
 }
 
+/**
+ * @brief read_line Функция считывает введенную строку.
+ * @param str [in] - указатель на считываемую строку
+ * @param n [in] - допустимая длина строки
+ * @return i [out] - количество считанных символов
+ */
 int read_line(char *str, int n)
 {
     char ch;
@@ -164,6 +188,11 @@ int read_line(char *str, int n)
     return i;
 }
 
+/**
+ * @brief input_car Функция считывает введенные значения для новой записи в таблицы и записывает их в поля структуры
+ * @param cur [in] - указатель на структуру, в которую записываются данные.
+ * @return INPUT_ERROR, если введенные значения неправильные, OK, если все введено верно
+ */
 int input_car(struct car *cur)
 {
     char ch1[16], ch2[16], ch3[16];
@@ -252,6 +281,11 @@ int input_car(struct car *cur)
     }
 }
 
+/**
+ * @brief print_data Функция печати таблицы
+ * @param table [in] - указатель на массив структур таблицы
+ * @param n [in] количество элементов таблицы
+ */
 void print_data(struct car **table, int n)
 {
     printf("\n%-8s%-15s%-20s%-15s%10s%15s%10s%10s%15s\n", "index:", "model:", "country:", "price:", "color:", "mileage:", "repairs:", "owners:", "condition:");
@@ -267,6 +301,11 @@ void print_data(struct car **table, int n)
     }
 }
 
+/**
+ * @brief print_keys Функция печати таблицы ключей.
+ * @param table [in] - Указатель на массив ключей
+ * @param n [in] - количество элементов таблицы
+ */
 void print_keys(struct key **table, int n)
 {
     printf("\n%-10s%10s\n", "index:", "value:");
@@ -274,6 +313,12 @@ void print_keys(struct key **table, int n)
         printf("%-10d%10u\n", table[i]->index, table[i]->value);
 }
 
+/**
+ * @brief print_table_with_keys Функция печати упорядоченной таблицы в соответствии с отсортированной таблицей ключей
+ * @param keys [in] - указатель на массив ключей
+ * @param table [in] - Указатель на массив ключей
+ * @param n [in] - количество элементов таблицы
+ */
 void print_table_with_keys(struct key **keys, struct car **table, int n)
 {
     int tmp_i;
@@ -291,6 +336,10 @@ void print_table_with_keys(struct key **keys, struct car **table, int n)
     }
 }
 
+/**
+ * @brief print_car Функция печати одной записи
+ * @param elem [in] - структура для печати
+ */
 void print_car(struct car elem)
 {
     printf("%-15s%-20s%-15u%10s%15u%10u%10u", elem.model, elem.country, elem.price, elem.color,\
@@ -301,6 +350,13 @@ void print_car(struct car elem)
         printf("%15d\n", elem.years.old);
 }
 
+/**
+ * @brief save_data Функция сохранения текущей таблицы в файл
+ * @param filename [in] - имя файла для сохранения
+ * @param table [in] - указатель на массив структур
+ * @param n [in] - количесвто элементов массива
+ * @return
+ */
 int save_data(char *filename, struct car **table, int n)
 {
     FILE *f = fopen(filename, "w");

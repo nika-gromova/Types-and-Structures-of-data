@@ -7,6 +7,22 @@
 
 #define TABLE 45
 
+/**
+ * Формат выводимой информации: модель, страна производства, цена, цвет, пробег, поломки, владельцы, состояние.
+ *
+ * Сортировка происходит по полю "цена".
+ *
+ * Меню:
+ * 1 - добавление;
+ * 2 - удаление;
+ * 3 - заданный поиск по модели и диапазону цен (0 поломок, 1 владелец, не новый);
+ * 4 - печать отсортированной таблицы ключей и  не отсортированной исходной таблицы;
+ * 5 - печать отсортированной исходной таблицы;
+ * 6 - печать упорядоченной исходной таблицы по отсортированной таблице ключей;
+ * 7 - сравнение времени для сортировки таблицы ключей и исходной;
+ * 8 - сравнение разных алгоритмов сортировки;
+ * 9 - вывод на печать всей таблицы.
+ */
 void info(void)
 {
     printf("\nThe format of output information:\n"
@@ -28,7 +44,7 @@ void info(void)
            "6. Printing ordered initial table using sorted table of keys\n"
            "7. Printing time measurements (in ticks) for sorting table of keys VS sorting initial table\n"
            "8. Printing time measurements (in ticks) for different types of sorting\n"
-           "9. Printing table in file.\n\n");
+           "9. Printing table.\n\n");
 }
 
 int main(void)
@@ -61,10 +77,11 @@ int main(void)
     printf("Hello! This is a program simulating a database work.\n"
            "Table consist of several fields and contains information about available cars int the shop.\n"
            "Sorting field is price.\n");
+    rc = read_data(file_name, p_table, n);
     while (cont)
     {
         info();
-        rc = read_data(file_name, p_table, n);
+        //rc = read_data(file_name, p_table, n);
         if (rc == OK)
         {
             struct key keys[TABLE];

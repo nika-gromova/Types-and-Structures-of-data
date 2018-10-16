@@ -1,10 +1,11 @@
 #ifndef DEFINES_H
 #define DEFINES_H
+// Возможные коды возврата программы
+#define OK 0 // Успешно
+#define OPEN_FILE_ERROR -1 // Ошибка открытия файла
+#define READ_ERROR -2 // Ошибка чтения файла
+#define INPUT_ERROR -3 // Ошибка ввода
+#define OVERFLOW -4 // Переполнение таблицы
+#define EMPTY -5 // Пустая таблица
 
-#define OK 0
-#define OPEN_FILE_ERROR -1
-#define READ_ERROR -2
-#define INPUT_ERROR -3
-#define OVERFLOW -4
-#define EMPTY -5
 #endif // DEFINES_H

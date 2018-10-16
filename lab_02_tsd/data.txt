@@ -1,15 +1,15 @@
-Hyundai|South Korea|661300|red|0|0|0|5
-Skoda|Czech Republic|94160|chocolate|0|0|0|2
-Renaul|France|886970|dark green|0|0|0|3
-Toyota|Japan|1387000|sea green|0|0|0|3
-Mercedes-Benz|Germany|2580000|silver|0|0|0|2
+Hyundai|South Korea|661300|red|0|0|0|5.0
+Skoda|Czech Republic|94160|chocolate|0|0|0|2.0
+Renaul|France|886970|dark green|0|0|0|3.0
+Toyota|Japan|1387000|sea green|0|0|0|3.0
+Mercedes-Benz|Germany|2580000|silver|0|0|0|2.0
 Hyundai|South Korea|761800|orange|200|0|1|2014
 Skoda|Czech Republic|841600|yellow|120|1|1|2013
 Renaul|France|697200|cyan|1000|4|2|2013
 Toyota|Japan|900000|sea green|600|2|1|2014
 Mercedes-Benz|Germany|1430000|silver|3000|2|3|2014
 Hyundai|South Korea|591300|light blue|900|0|1|2015
-Skoda|Czech Republic|1941600|brown|0|0|0|3
+Skoda|Czech Republic|1941600|brown|0|0|0|3.0
 Renaul|France|400000|green|150000|7|4|2000
 Toyota|Japan|1586000|silver|30|0|0|2018
 Mercedes-Benz|Germany|5580000|black|5|0|0|2018
@@ -22,19 +22,19 @@ Hyundai|South Korea|761200|chocolate|306597|1|6|2016
 Skoda|Czech Republic|941600|chocolate|0|0|0|2018
 Renaul|France|1886970|red|300000|30|10|1985
 Toyota|Japan|387000|white|200000|15|3|2016
-Mercedes-Benz|Germany|2080000|silver|0|0|0|2
+Mercedes-Benz|Germany|2080000|silver|0|0|0|2.0
 Hyundai|South Korea|789300|olive|5000|2|8|2015
 Skoda|Czech Republic|832000|yellow|255698|9|6|2016
 Renaul|France|2086000|brown|500|0|2|2017
 Toyota|Japan|387000|silver|65423|9|15|2014
 Mercedes-Benz|Germany|4980000|black|356000|4|3|2013
 Hyundai|South Korea|836000|silver|2156|0|1|2018
-Skoda|Czech Republic|1600000|sea green|0|0|0|5
+Skoda|Czech Republic|1600000|sea green|0|0|0|5.0
 Renaul|France|654000|green|100000|3|2|2015
 Toyota|Japan|687000|black|300000|5|3|2013
 Mercedes-Benz|Germany|1630000|silver|5000|1|1|2017
 Hyundai|South Korea|423000|dark green|200000|10|5|2012
-Skoda|Czech Republic|1441600|olive|0|0|0|4
+Skoda|Czech Republic|1441600|olive|0|0|0|4.0
 Renaul|France|906500|dark green|5000|1|1|2017
 Toyota|Japan|108000|sea green|10000|0|1|2018
 Mercedes-Benz|Germany|11580000|black|300000|30|10|1953

@@ -3,6 +3,11 @@
 #include "io.h"
 #include <stdio.h>
 
+/**
+ * @brief sort_keys_bubble Сортировка пузырьком таблицы ключей по указателям.
+ * @param n [in] - количество элементов таблицы ключей
+ * @param p_key [in] - указатель на массив указателей на стуктуры (ключи)
+ */
 void sort_keys_bubble(int n, struct key **p_key)
 {
     struct key *tmp;
@@ -18,6 +23,11 @@ void sort_keys_bubble(int n, struct key **p_key)
         }
 }
 
+/**
+ * @brief sort_keys_cocktail Сортировка Шейкер таблицы ключей по указателям.
+ * @param n [in] - количество элементов таблицы ключей
+ * @param p_key [in] - указатель на массив указателей на стуктуры (ключи)
+ */
 void sort_keys_cocktail(int n, struct key **p_key)
 {
     struct key *tmp;
@@ -51,6 +61,11 @@ void sort_keys_cocktail(int n, struct key **p_key)
     }
 }
 
+/**
+ * @brief sort_keys_bubble2 Сортировка пузырьком таблицы ключей через массив.
+ * @param n [in] - количество элементов таблицы ключей
+ * @param key [in] - массив стуктур (ключи)
+ */
 void sort_keys_bubble_2(int n, struct key key[])
 {
     struct key locals[n];

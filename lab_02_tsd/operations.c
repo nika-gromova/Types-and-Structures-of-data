@@ -2,6 +2,12 @@
 #include "structure.h"
 #include "operations.h"
 
+/**
+ * @brief add Добавление одной строки в таблицу в файле.
+ * @param filename [in] - имя файла
+ * @param tmp [in] - запись для добавления
+ * @return при ошибке открытия файла возвращает соответствующий код возврата, иначе 0
+ */
 int add(char *filename, struct car tmp)
 {
     int rc = OK;

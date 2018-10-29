@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
 #include "io.h"
 #include "defines.h"
 #include "allocate.h"
 #include "process.h"
+
 
 unsigned long long tick(void)
 {
@@ -37,7 +40,59 @@ void intro(void)
            "This example prescribes such row-vector:\n"
            "0 5 -9 0 3.3\n\n"
            "The result of the calculation will be available in sparse format.\n"
-           "If the size of result array won't exceed 5, than it will be given in ordinary format too.\n");
+           "If the size of result array won't exceed 5, than it will be given in ordinary format too.\n\n");
+}
+
+void create_rand_matrix(int n, int m, int proc)
+{
+    FILE *f = fopen("in_8_2.txt", "w");
+    if (!f)
+        return;
+    if (n <= 1 || m <= 1)
+        return;
+
+    srand(time(NULL));
+    int index_i = 0, index_j = 0;
+    double elem;
+    int not_null_elements = ((n * m) * proc) / 100;
+    fprintf(f, "%d %d %d\n", n, m, not_null_elements);
+    for (int i = 0; i < not_null_elements; i++)
+    {
+        elem = 1 + rand() % 100;
+        fprintf(f, "%d %d %.2lf\n", index_i, index_j, elem);
+        if (index_j + 1 > m - 1)
+        {
+            index_i++;
+            index_j = 0;
+        }
+        else
+            index_j++;
+    }
+    fclose(f);
+}
+void create_rand_vectors(int m, int proc)
+{
+    FILE *f = fopen("in_8_1.txt", "w");
+    if (!f)
+        return;
+    if (m <= 1)
+        return;
+
+    srand(time(NULL));
+    int index_j = 0;
+    double elem;
+    int not_null_elements = (m * proc) / 100;
+    fprintf(f, "%d %d\n", m, not_null_elements);
+    for (int i = 0; i < not_null_elements; i++)
+    {
+        elem = 1 + rand() % 100;
+        fprintf(f, "%d %.2lf\n", index_j, elem);
+        if (index_j + 1 > m - 1)
+            index_j = 0;
+        else
+            index_j++;
+    }
+    fclose(f);
 }
 
 int main(void)
@@ -58,7 +113,8 @@ int main(void)
 
     int choice = 0;
     intro();
-
+    create_rand_matrix(100, 100, 90);
+    create_rand_vectors(100, 90);
     printf("Input data: by-hand (1) or from file (2)\nChoose input: ");
     if (scanf("%d", &choice) == 1)
     {
@@ -85,7 +141,7 @@ int main(void)
                         if (rc != OK)
                         {
                             free(row_vector);
-                            printf("Something wrong with file or data in file. Try again later :)\n");
+                            printf("Something wrong with file or data in file. Try again later %d:)\n", rc);
                             return READ_ERROR;
                         }
                     }
@@ -149,13 +205,9 @@ int main(void)
                         else
                         {
                             printf("\nSparce matrix format:\n");
-                            printf("result indexes:");
+                            printf("indexes | values\n");
                             for (int i = 0; i < not_null_res; i++)
-                                printf("%6d ", Ires[i]);
-                            printf("\n");
-                            printf("result values:");
-                            for (int i = 0; i < not_null_res; i++)
-                                printf("%7.2lf ", res_N[i]);
+                                printf("%7d | %.2lf\n", Ires[i], res_N[i]);
                             printf("\n");
                         }
 

@@ -234,6 +234,12 @@ int input_byhand(double ***matrix, int *n, int *m, double **row, int *row_size, 
             free(buf2);
             return N_M_PARAMS_ERROR;
         }
+        if (fabs(*n - *row_size) > EPS)
+        {
+            printf("Impossible to perform a multiplication for 1 x %d and %d x %d\n", *row_size, *n, *m);
+            free(*row);
+            return N_M_PARAMS_ERROR;
+        }
         buf = allocate_matrix(*n, *m);
         if (buf)
         {

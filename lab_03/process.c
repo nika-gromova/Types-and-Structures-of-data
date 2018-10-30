@@ -88,7 +88,7 @@ int multiplication(double *A, int *IA, int *JA, int m, int column_n, double *B, 
             if (IP[IA[j]] != -1)
                 mult += A[j] * B[IP[IA[j]]];
         }
-        if (mult != 0)
+        if (fabs(mult) > EPS)
             (*not_null_res)++;
         res[k] = mult;
         mult = 0;

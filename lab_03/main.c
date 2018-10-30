@@ -43,16 +43,18 @@ void intro(void)
            "If the size of result array won't exceed 5, than it will be given in ordinary format too.\n\n");
 }
 
-void create_rand_matrix(int n, int m, int proc)
+int create_rand_matrix(int n, int m, int proc)
 {
-    FILE *f = fopen("in_8_2.txt", "w");
+    FILE *f = fopen("in_3_2.txt", "w");
     if (!f)
-        return;
+        return INPUT_ERROR;
     if (n <= 1 || m <= 1)
-        return;
+        return INPUT_ERROR;
+    if (proc < 1 || proc > 100)
+        return INPUT_ERROR;
 
     srand(time(NULL));
-    int index_i = 0, index_j = 0;
+    int index_i = 0, index_j = m - 1;
     double elem;
     int not_null_elements = ((n * m) * proc) / 100;
     fprintf(f, "%d %d %d\n", n, m, not_null_elements);
@@ -60,23 +62,26 @@ void create_rand_matrix(int n, int m, int proc)
     {
         elem = 1 + rand() % 100;
         fprintf(f, "%d %d %.2lf\n", index_i, index_j, elem);
-        if (index_j + 1 > m - 1)
+        if (index_j - 1 < 0)
         {
             index_i++;
-            index_j = 0;
+            index_j = m - 1;
         }
         else
-            index_j++;
+            index_j--;
     }
     fclose(f);
+    return OK;
 }
-void create_rand_vectors(int m, int proc)
+int create_rand_vectors(int m, int proc)
 {
-    FILE *f = fopen("in_8_1.txt", "w");
+    FILE *f = fopen("in_3_1.txt", "w");
     if (!f)
-        return;
+        return INPUT_ERROR;
     if (m <= 1)
-        return;
+        return INPUT_ERROR;
+    if (proc < 1 || proc > 100)
+        return INPUT_ERROR;
 
     srand(time(NULL));
     int index_j = 0;
@@ -93,6 +98,7 @@ void create_rand_vectors(int m, int proc)
             index_j++;
     }
     fclose(f);
+    return OK;
 }
 
 int main(void)
@@ -115,10 +121,55 @@ int main(void)
     intro();
     create_rand_matrix(100, 100, 90);
     create_rand_vectors(100, 90);
-    printf("Input data: by-hand (1) or from file (2)\nChoose input: ");
+    printf("Input data: by-hand (1) or from file (2) or create your own file (3)\nChoose input: ");
     if (scanf("%d", &choice) == 1)
     {
-        if (choice == 1)
+        if (choice == 3)
+        {
+            int proc;
+            printf("Input the size of row vector (n > 0) and percent (1 - 100): [n] [%c]\n", '%');
+            if (scanf("%d %d", &row_size, &proc) == 2)
+            {
+                rc = create_rand_vectors(row_size, proc);
+                if (rc != OK)
+                {
+                    printf("Invalid parameters.\n");
+                    return rc;
+                }
+                printf("Input the size of matrix (n > 0, m > 0) and percent (1 - 100): [n] [m] [%c]\n", '%');
+                if (scanf("%d %d %d", &n, &m, &proc) == 3)
+                {
+                    rc = create_rand_matrix(n, m, proc);
+                    if (rc != OK)
+                    {
+                        printf("Invalid parameters.\n");
+                        return rc;
+                    }
+                    rc = read_row("in_3_1.txt", &row_vector, &row_size, &not_null_b);
+                    if (rc == OK)
+                    {
+                        rc = read_matrix("in_3_2.txt", &matrix, &n, &m, &not_null_a);
+                        if (rc != OK)
+                        {
+                            free(row_vector);
+                            printf("Something wrong with file or data in file. Try again later %d:)\n", rc);
+                            return READ_ERROR;
+                        }
+                    }
+                    else
+                    {
+                        printf("Something wrong with file or data in file. Try again later :)\n");
+                        return READ_ERROR;
+                    }
+                }
+                else
+                    rc = INPUT_ERROR;
+            }
+            else
+                rc = INPUT_ERROR;
+
+        }
+        else if (choice == 1)
         {
             rc = input_byhand(&matrix, &n, &m, &row_vector, &row_size, &not_null_a, &not_null_b);
             if (rc != OK)
@@ -165,7 +216,7 @@ int main(void)
 
     if (rc == INPUT_ERROR)
     {
-        printf("Incorrect input. Input only 1 or 2 next time.\n");
+        printf("Incorrect input.\n");
         return rc;
     }
     else if (rc == INPUT_STR_ERROR)
@@ -223,20 +274,20 @@ int main(void)
                     double *res2 = malloc(m * sizeof(double));
                     if (res2)
                     {
-                        unsigned long long t1, t2;
+                        unsigned long long t1, t2, t3, t4;
                         t1 = tick();
                         for (int i = 0; i < 10 && rc == OK; i++)
                             rc = mult_vector_matrix(matrix, n, m, row_vector, row_size, res2);
                         t2 = tick();
                         printf("\n\nTime measurements for processing standart method of multiplication: %I64u\n", (t2 - t1) / 10);
-                        printf("memory space = %I64d", (n * m * sizeof(double) + m * sizeof(double)));
+                        printf("memory space = %d\n", (n * m * sizeof(double) + m * sizeof(double)));
 
-                        t1 = tick();
+                        t3 = tick();
                         for (int i = 0; i < 10 && rc == OK; i++)
                             rc = multiplication(A, IA, JA, row_size, m, B, IB, not_null_b, res1, &not_null_res);
-                        t2 = tick();
-                        printf("\n\nTime measurements for processing method of sparse matrix multiplication: %I64u\n", (t2 - t1) / 10);
-                        printf("memory space = %I64d", (not_null_a * sizeof(double) + not_null_a * sizeof(int) + (m + 1) * sizeof(int) +\
+                        t4 = tick();
+                        printf("\n\nTime measurements for processing method of sparse matrix multiplication: %I64u\n", (t4 - t3) / 10);
+                        printf("memory space = %d", (not_null_a * sizeof(double) + not_null_a * sizeof(int) + (m + 1) * sizeof(int) +\
                                                         not_null_b * sizeof(double) + not_null_b * sizeof(int) + n * sizeof(int)));
                         free(res2);
                     }

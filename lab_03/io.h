@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 int read_row(const char *file_name, double **row, int *n, int *not_null);
 int read_matrix(const char *file_name, double ***matrix, int *n, int *m, int *not_null);

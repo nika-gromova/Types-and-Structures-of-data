@@ -170,7 +170,10 @@ int input_byhand(double ***matrix, int *n, int *m, double **row, int *row_size, 
     if (scanf("%d", row_size) == 1)
     {
         if (*row_size <= 0)
+        {
+            printf("Size should be > 1.\n");
             return N_M_PARAMS_ERROR;
+        }
         buf2 = calloc((*row_size), sizeof(double));
         if (buf2)
         {
@@ -232,6 +235,7 @@ int input_byhand(double ***matrix, int *n, int *m, double **row, int *row_size, 
         if (*n <= 0 || *m <= 0)
         {
             free(buf2);
+            printf("Size should be > 1.\n");
             return N_M_PARAMS_ERROR;
         }
         if (fabs(*n - *row_size) > EPS)

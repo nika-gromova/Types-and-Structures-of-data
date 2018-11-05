@@ -45,60 +45,111 @@ void intro(void)
 
 int create_rand_matrix(int n, int m, int proc)
 {
-    FILE *f = fopen("in_3_2.txt", "w");
-    if (!f)
-        return INPUT_ERROR;
     if (n <= 1 || m <= 1)
         return INPUT_ERROR;
     if (proc < 1 || proc > 100)
         return INPUT_ERROR;
-
-    srand(time(NULL));
-    int index_i = 0, index_j = m - 1;
-    double elem;
-    int not_null_elements = ((n * m) * proc) / 100;
-    fprintf(f, "%d %d %d\n", n, m, not_null_elements);
-    for (int i = 0; i < not_null_elements; i++)
+    FILE *f = fopen("in_3_2.txt", "w");
+    if (f)
     {
-        elem = 1 + rand() % 100;
-        fprintf(f, "%d %d %.2lf\n", index_i, index_j, elem);
-        if (index_j - 1 < 0)
+        double **data = allocate_matrix(n, m);
+        if (data)
         {
-            index_i++;
-            index_j = m - 1;
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    data[i][j] = -1;
+            srand(time(NULL));
+            int index_i = -1, index_j = -1;
+            double elem;
+            int not_null_elements = ((n * m) * proc) / 100;
+            fprintf(f, "%d %d %d\n", n, m, not_null_elements);
+            int i = 0;
+            int flag_rand = 1;
+            while (i < not_null_elements)
+            {
+                if (proc <= 80 && n <= 700 && m <= 700)
+                {
+                    while (flag_rand)
+                    {
+                        index_i = 0 + rand() % (n - 1);
+                        index_j = 0 + rand() % (m - 1);
+                        if (data[index_i][index_j] == -1)
+                            flag_rand = 0;
+                    }
+                }
+                else
+                {
+                    if (index_j - 1 < 0)
+                    {
+                        index_i++;
+                        index_j = m - 1;
+                    }
+                    else
+                        index_j--;
+                }
+                elem = 1 + rand() % 100;
+                data[index_i][index_j] = elem;
+                fprintf(f, "%d %d %.2lf\n", index_i, index_j, elem);
+                i++;
+                flag_rand = 1;
+            }
+            fclose(f);
+            free_matrix(data, n);
+            return OK;
         }
-        else
-            index_j--;
+        return MEMORY_ERROR;
     }
-    fclose(f);
-    return OK;
+    return FILE_OPEN_ERROR;
 }
 int create_rand_vectors(int m, int proc)
 {
-    FILE *f = fopen("in_3_1.txt", "w");
-    if (!f)
-        return INPUT_ERROR;
     if (m <= 1)
         return INPUT_ERROR;
     if (proc < 1 || proc > 100)
         return INPUT_ERROR;
-
-    srand(time(NULL));
-    int index_j = 0;
-    double elem;
-    int not_null_elements = (m * proc) / 100;
-    fprintf(f, "%d %d\n", m, not_null_elements);
-    for (int i = 0; i < not_null_elements; i++)
+    FILE *f = fopen("in_3_1.txt", "w");
+    if (f)
     {
-        elem = 1 + rand() % 100;
-        fprintf(f, "%d %.2lf\n", index_j, elem);
-        if (index_j + 1 > m - 1)
-            index_j = 0;
-        else
-            index_j++;
+        int *data = malloc(m * sizeof(int));
+        if (data)
+        {
+            for (int i = 0; i < m; i++)
+                data[i] = -1;
+            srand(time(NULL));
+            int index_i = -1;
+            int flag_rand = 1;
+            double elem;
+            int not_null_elements = (m * proc) / 100;
+            fprintf(f, "%d %d\n", m, not_null_elements);
+            for (int i = 0; i < not_null_elements; i++)
+            {
+                if (proc < 70 && m <= 700)
+                {
+                    while (flag_rand)
+                    {
+                        index_i = 0 + rand() % (m - 1);
+                        if (data[index_i] == -1)
+                            flag_rand = 0;
+                    }
+                }
+                else
+                {
+                    if (index_i + 1 > m - 1)
+                        index_i = 0;
+                    else
+                        index_i++;
+                }
+                elem = 1 + rand() % 100;
+                fprintf(f, "%d %.2lf\n", index_i, elem);
+                flag_rand = 1;
+            }
+            fclose(f);
+            free(data);
+            return OK;
+        }
+        return MEMORY_ERROR;
     }
-    fclose(f);
-    return OK;
+    return FILE_OPEN_ERROR;
 }
 
 int main(void)
@@ -108,7 +159,6 @@ int main(void)
     int n, m;
     double *row_vector = NULL;
     int row_size;
-
     double *A = NULL;
     //int n_a;
     int *IA = NULL, *JA = NULL;
@@ -119,8 +169,6 @@ int main(void)
 
     int choice = 0;
     intro();
-    create_rand_matrix(100, 100, 90);
-    create_rand_vectors(100, 90);
     printf("Input data: by-hand (1) or from file (2) or create your own file (3)\nChoose input: ");
     if (scanf("%d", &choice) == 1)
     {
@@ -192,7 +240,7 @@ int main(void)
                         if (rc != OK)
                         {
                             free(row_vector);
-                            printf("Something wrong with file or data in file. Try again later %d:)\n", rc);
+                            printf("Something wrong with file or data in file. Try again later :)\n");
                             return READ_ERROR;
                         }
                     }
@@ -280,14 +328,14 @@ int main(void)
                             rc = mult_vector_matrix(matrix, n, m, row_vector, row_size, res2);
                         t2 = tick();
                         printf("\n\nTime measurements for processing standart method of multiplication: %I64u\n", (t2 - t1) / 10);
-                        printf("memory space = %d\n", (n * m * sizeof(double) + m * sizeof(double)));
+                        printf("memory space = %I64d\n", (n * m * sizeof(double) + m * sizeof(double)));
 
                         t3 = tick();
                         for (int i = 0; i < 10 && rc == OK; i++)
                             rc = multiplication(A, IA, JA, row_size, m, B, IB, not_null_b, res1, &not_null_res);
                         t4 = tick();
                         printf("\n\nTime measurements for processing method of sparse matrix multiplication: %I64u\n", (t4 - t3) / 10);
-                        printf("memory space = %d", (not_null_a * sizeof(double) + not_null_a * sizeof(int) + (m + 1) * sizeof(int) +\
+                        printf("memory space = %I64d", (not_null_a * sizeof(double) + not_null_a * sizeof(int) + (m + 1) * sizeof(int) +\
                                                         not_null_b * sizeof(double) + not_null_b * sizeof(int) + n * sizeof(int)));
                         free(res2);
                     }

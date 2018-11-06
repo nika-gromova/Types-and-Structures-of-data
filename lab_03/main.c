@@ -175,7 +175,7 @@ int main(void)
         if (choice == 3)
         {
             int proc;
-            printf("Input the size of row vector (n > 0) and percent (1 - 100): [n] [%c]\n", '%');
+            printf("Input the size of row vector (n > 0) and percent (1 - 100): [n] [%%]\n");
             if (scanf("%d %d", &row_size, &proc) == 2)
             {
                 rc = create_rand_vectors(row_size, proc);
@@ -184,7 +184,7 @@ int main(void)
                     printf("Invalid parameters.\n");
                     return rc;
                 }
-                printf("Input the size of matrix (n > 0, m > 0) and percent (1 - 100): [n] [m] [%c]\n", '%');
+                printf("Input the size of matrix (n > 0, m > 0) and percent (1 - 100): [n] [m] [%%]\n");
                 if (scanf("%d %d %d", &n, &m, &proc) == 3)
                 {
                     rc = create_rand_matrix(n, m, proc);
@@ -328,14 +328,14 @@ int main(void)
                             rc = mult_vector_matrix(matrix, n, m, row_vector, row_size, res2);
                         t2 = tick();
                         printf("\n\nTime measurements for processing standart method of multiplication: %I64u\n", (t2 - t1) / 10);
-                        printf("memory space = %I64d\n", (n * m * sizeof(double) + m * sizeof(double)));
+                        printf("memory space = %d\n", (n * m * sizeof(double) + m * sizeof(double)));
 
                         t3 = tick();
                         for (int i = 0; i < 10 && rc == OK; i++)
                             rc = multiplication(A, IA, JA, row_size, m, B, IB, not_null_b, res1, &not_null_res);
                         t4 = tick();
                         printf("\n\nTime measurements for processing method of sparse matrix multiplication: %I64u\n", (t4 - t3) / 10);
-                        printf("memory space = %I64d", (not_null_a * sizeof(double) + not_null_a * sizeof(int) + (m + 1) * sizeof(int) +\
+                        printf("memory space = %d", (not_null_a * sizeof(double) + not_null_a * sizeof(int) + (m + 1) * sizeof(int) +\
                                                         not_null_b * sizeof(double) + not_null_b * sizeof(int) + n * sizeof(int)));
                         free(res2);
                     }

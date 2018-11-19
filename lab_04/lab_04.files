@@ -1,5 +1,9 @@
+array_st.c
+array_st.h
+list_st.c
+list_st.h
+my_types.h
 defines.h
-types.h
-stack_list.c
-stack_array.c
+io.c
+io.h
 main.c

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INIT_SIZE 10
+#define INIT_SIZE 3
 #define REALLOC_MULT 2
 
 array_stack_t *create_stack_arr(void)
@@ -33,15 +33,17 @@ void free_stack_arr(array_stack_t *stack)
     free(stack);
 }
 
-int *pop_arr(array_stack_t *stack)
+int pop_arr(array_stack_t *stack, int *rc)
 {
     if (stack->top == 0)
     {
         printf("\nStack_array is empty.\n");
-        return NULL;
+        *rc = -1;
+        return 0;
     }
+    *rc = 0;
     stack->top--;
-    return &((stack->data)[stack->top]);
+    return ((stack->data)[stack->top]);
 }
 
 int *peek_arr(array_stack_t *stack)
@@ -91,7 +93,7 @@ void print_stack_arr(array_stack_t *stack)
     }
     printf("Stack_array:\n");
     int *arr = stack->data;
-    for (int i = 0; i < stack->top; i++)
+    for (int i = stack->top - 1; i >= 0; i--)
         printf("%d ", arr[i]);
     printf("\n\n");
 }
@@ -104,7 +106,7 @@ void task_arr(array_stack_t *stack)
         return;
     }
     int cur_value = stack->data[stack->top - 1];
-    printf("%d ", cur_value);
+    printf("\n%d ", cur_value);
     int next;
     int i = 2;
     while (stack->top - i >= 0)

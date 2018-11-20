@@ -35,7 +35,7 @@ int main(void)
     int count_symb_in_input_line;
     unsigned long long t1, t2, t3, t4, time_array = 0, time_list = 0;
     int push_value;
-    int *pop_value;
+    int pop_value;
     int rc = OK;
 
     array_stack_t *stack_array = NULL;
@@ -85,12 +85,12 @@ int main(void)
         {
             if (stack_array->top >= limit && size_stack_list >= limit)
             {
-                printf("Stack overflow! Please pop some elements first.\n\n");
+                printf("\nStack overflow! Please pop some elements first.\n\n");
                 choice = STACK_OVERFLOW;
             }
             else
             {
-                printf("Please, enter an integer number:\n");
+                printf("\nPlease, enter an integer number:\n");
                 rc = read_int(buf, sizeof(buf), &push_value);
                 if (rc == OK)
                 {
@@ -122,6 +122,7 @@ int main(void)
                         {
                             if (free_adderesses[i] == push_node)
                             {
+                                //printf("\nfound in freed\n");
                                 memmove(free_adderesses + i, free_adderesses + i + 1, sizeof(int) * (iter_free_addresses - i - 1));
                                 iter_free_addresses--;
                                 break;
@@ -148,27 +149,36 @@ int main(void)
         if (choice == 2)
         {
             t1 = tick();
-            pop_value = pop_arr(stack_array);
-            if (pop_value != NULL)
+            pop_value = pop_arr(stack_array, &rc);
+            if (rc != -1)
             {
-                printf("Element %d was popped from stack_array.\n", *pop_value);
+                printf("\nElement %d was popped from stack_array.\n", pop_value);
             }
             t2 = tick();
             time_array += (t2 - t1);
 
             t1 = tick();
-            pop_node = pop_list(&stack_list);
-            if (pop_node != NULL)
+            pop_value = pop_list(&stack_list, &pop_node, &rc);
+            if (rc != -1)
             {
                 t3 = tick();
-                occupied_addresses[iter_occupied_addresses] = NULL;
-                iter_occupied_addresses--;
+                for (int i = 0; i < iter_occupied_addresses; i++)
+                {
+                    if (occupied_addresses[i] == pop_node)
+                    {
+                        //printf("\nfound in occupied\n");
+                        memmove(occupied_addresses + i, occupied_addresses + i + 1, (iter_occupied_addresses - i - 1) * sizeof(int));
+                        iter_occupied_addresses--;
+                        break;
+                    }
+                }
+
                 free_adderesses[iter_free_addresses] = pop_node;
                 iter_free_addresses++;
                 t4 = tick();
-                printf("Element %d was popped from list_array.\n\n", pop_node->data);
+                printf("Element %d was popped from list_array.\n", pop_value);
+                printf("Memory address: %p\n\n", pop_node);
                 size_stack_list--;
-                free(pop_node);
             }
             t2 = tick();
             time_list += (t2 - t1);
@@ -183,7 +193,7 @@ int main(void)
             time_array += (t2 - t1);
 
             t1 = tick();
-            task_list(stack_list);
+            task_list(&stack_list);
             t2 = tick();
             time_list += (t2 - t1);
 
@@ -231,10 +241,10 @@ int main(void)
         }
         if (choice == 6)
         {
-            printf("Time spent for processing stack as an array (in ticks): (I64u) %u\n", (unsigned int) time_array);
+            printf("\nTime spent for processing stack as an array (in ticks): (I64u) %u\n", (unsigned int) time_array);
             printf("Memory outlay for stack as an array (in bytes): %u\n\n", (unsigned int) (sizeof(array_stack_t) + sizeof(int) * stack_array->top));
             printf("Time spent for processing stack as a list (in ticks): (I64u) %u\n", (unsigned int) time_list);
-            printf("Memory outlay for stack as a list (in bytes): %u\n", (unsigned int) (sizeof(list_stack_node) * size_stack_list));
+            printf("Memory outlay for stack as a list (in bytes): %u\n\n", (unsigned int) (sizeof(list_stack_node) * size_stack_list));
             choice = 0;
         }
         if (choice == 7)

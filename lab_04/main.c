@@ -9,12 +9,12 @@
 
 void info_menu(void)
 {
-    printf("If you want to push element, please enter 1.\n");
-    printf("If you want to pop element, please enter 2.\n");
-    printf("If you want to see all decreasing sets of numbers in stack in reversed order, please enter 3.\n");
-    printf("If you want to look through the whole stack, please enter 4.\n");
-    printf("If you want to look through the list of memory addresses of elements in stack, please enter 5.\n");
-    printf("If you want to look through the list of memory addresses of freed addresses, please enter 6.\n");
+    printf("Press 1 - if you want to push element.\n");
+    printf("Press 2 - if you want to pop element.\n");
+    printf("Press 3 - if you want to see all decreasing sets of numbers in stack in reversed order.\n");
+    printf("Press 4 - if you want to look through the whole stack.\n");
+    printf("Press 5 - if you want to look through the list of occupied and freed memory addresses.\n");
+    printf("Press 6 - if you want to see time and memory outlays.\n");
     printf("If you want to exit, please enter 7.\n\n");
 }
 
@@ -204,36 +204,41 @@ int main(void)
         }
         if (choice == 5)
         {
-            if (iter_occupied_addresses <= 0)
+            if (iter_occupied_addresses <= 0 && iter_free_addresses <= 0)
                 printf("All memory is free.\n\n");
             else
             {
-                for (int i = 0; i < iter_occupied_addresses; i++)
-                    printf("%p ", occupied_addresses[i]);
+                printf("Occupied memory:\n");
+                if (iter_occupied_addresses > 0)
+                {
+                    for (int i = 0; i < iter_occupied_addresses; i++)
+                        printf("%p ", occupied_addresses[i]);
+                }
+                else
+                    printf("None\n");
+                printf("\n\n");
+                printf("Freed memory:\n");
+                if (iter_free_addresses > 0)
+                {
+                    for (int i = 0; i < iter_free_addresses; i++)
+                        printf("%p ", free_adderesses[i]);
+                }
+                else
+                    printf("None\n");
                 printf("\n\n");
             }
             choice = 0;
         }
         if (choice == 6)
         {
-            if (iter_free_addresses <= 0 && iter_free_addresses > 0)
-                printf("All memory is occupied.\n\n");
-            else if (iter_free_addresses <= 0 && iter_free_addresses <= 0)
-                printf("All memory is free.\n\n");
-            else
-            {
-                for (int i = 0; i < iter_free_addresses; i++)
-                    printf("%p ", free_adderesses[i]);
-                printf("\n\n");
-            }
-            choice = 0;
-        }
-        if (choice == 7)
-        {
             printf("Time spent for processing stack as an array (in ticks): (I64u) %u\n", (unsigned int) time_array);
             printf("Memory outlay for stack as an array (in bytes): %u\n\n", (unsigned int) (sizeof(array_stack_t) + sizeof(int) * stack_array->top));
             printf("Time spent for processing stack as a list (in ticks): (I64u) %u\n", (unsigned int) time_list);
             printf("Memory outlay for stack as a list (in bytes): %u\n", (unsigned int) (sizeof(list_stack_node) * size_stack_list));
+            choice = 0;
+        }
+        if (choice == 7)
+        {
             free_stack_arr(stack_array);
             delete_stack_list(stack_list);
             return OK;

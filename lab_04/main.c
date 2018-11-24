@@ -15,7 +15,7 @@ void info_menu(void)
     printf("Press 4 - if you want to look through the whole stack.\n");
     printf("Press 5 - if you want to look through the list of occupied and freed memory addresses.\n");
     printf("Press 6 - if you want to see time and memory outlays.\n");
-    printf("If you want to exit, please enter 7.\n\n");
+    printf("Press 7 - if you want to exit.\n\n");
 }
 
 unsigned long long tick(void)
@@ -39,12 +39,6 @@ int main(void)
     int rc = OK;
 
     array_stack_t *stack_array = NULL;
-    t1 = tick();
-    stack_array = create_stack_arr();
-    if (stack_array == NULL)
-        return MEMORY_ERROR;
-    t2 = tick();
-    time_array += (t2 - t1);
 
     list_stack_node *stack_list = NULL;
     list_stack_node *pop_node = NULL;
@@ -66,27 +60,32 @@ int main(void)
         }
     }
 
+    t1 = tick();
+    stack_array = create_stack_arr(limit);
+    if (stack_array == NULL)
+        return MEMORY_ERROR;
+    t2 = tick();
+    time_array += (t2 - t1);
+
     while (1)
     {
         while (choice < 1 || choice > 7)
         {
             info_menu();
             printf("Choose 1 - 6:\n");
-            count_symb_in_input_line = read_line(buf, sizeof(buf));
-            if (count_symb_in_input_line == 0)
+            count_symb_in_input_line = read_int(buf, sizeof(buf), &choice);
+            if (count_symb_in_input_line != OK || choice < 1 || choice > 7)
             {
                 printf("Incorrect input.\n\n");
                 choice = 0;
             }
-            else
-                choice = atoi(buf);
         }
         if (choice == 1)
         {
-            if (stack_array->top >= limit && size_stack_list >= limit)
+            if (size_stack_list >= limit && stack_array->top >= limit)
             {
                 printf("\nStack overflow! Please pop some elements first.\n\n");
-                choice = STACK_OVERFLOW;
+                choice = 0;
             }
             else
             {
@@ -98,8 +97,7 @@ int main(void)
                     stack_array = push_arr(stack_array, push_value);
                     if (stack_array == NULL)
                     {
-                        printf("Some memory errors :(\n\n");
-                        return MEMORY_ERROR;
+                        printf("\nStack overflow! Please pop some elements first.\n\n");
                     }
                     else
                     {
@@ -154,6 +152,10 @@ int main(void)
             {
                 printf("\nElement %d was popped from stack_array.\n", pop_value);
             }
+            else
+            {
+                printf("\nStack_array is empty.\n");
+            }
             t2 = tick();
             time_array += (t2 - t1);
 
@@ -180,6 +182,10 @@ int main(void)
                 printf("Memory address: %p\n\n", pop_node);
                 size_stack_list--;
             }
+            else
+            {
+                printf("\nStack_list is empty.\n\n");
+            }
             t2 = tick();
             time_list += (t2 - t1);
             time_list -= (t4 - t3);
@@ -196,6 +202,10 @@ int main(void)
             task_list(&stack_list);
             t2 = tick();
             time_list += (t2 - t1);
+
+            iter_occupied_addresses = 0;
+            iter_free_addresses = 0;
+            size_stack_list = 0;
 
             choice = 0;
         }

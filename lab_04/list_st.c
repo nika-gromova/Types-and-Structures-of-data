@@ -35,7 +35,6 @@ int pop_list(list_stack_node **head, list_stack_node **address, int *rc)
 {
     if (*head == NULL)
     {
-        printf("\nStack_list is empty.\n\n");
         *rc = -1;
         return -1;
     }
@@ -68,7 +67,7 @@ void print_stack_list(list_stack_node *head)
 
 void task_list(list_stack_node **head)
 {
-    if (head == NULL)
+    if (*head == NULL)
     {
         printf("\nStack_list is empty.\n");
         return;

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "io.h"
 #include "defines.h"
+
 int read_line(char *str, int n)
 {
     char ch;

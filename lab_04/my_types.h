@@ -17,4 +17,12 @@ struct list_stack_t
     list_stack_node *next;
 };
 
+/*typedef struct list_stack_d list_stack_desc;
+
+struct list_stack_d
+{
+    int size;
+    list_stack_node *latest;
+};*/
+
 #endif // MY_TYPES_H

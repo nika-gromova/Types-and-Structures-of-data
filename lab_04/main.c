@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "defines.h"
 #include "io.h"
 #include "my_types.h"
@@ -116,25 +115,14 @@ int main(void)
                     else
                     {
                         t3 = tick();
-                        for (int i = 0; i < iter_free_addresses; i++)
-                        {
-                            if (free_adderesses[i] == push_node)
-                            {
-                                //printf("\nfound in freed\n");
-                                memmove(free_adderesses + i, free_adderesses + i + 1, sizeof(int) * (iter_free_addresses - i - 1));
-                                iter_free_addresses--;
-                                break;
-                            }
-                        }
-                        occupied_addresses[iter_occupied_addresses] = push_node;
-                        iter_occupied_addresses++;
+                        add_remove_addresses(occupied_addresses, free_adderesses, &iter_occupied_addresses, &iter_free_addresses, push_node);
                         t4 = tick();
+                        time_list -= (t4 - t3);
                         printf("Element %d was pushed to stack_list!\n\n", push_value);
                         size_stack_list++;
                     }
                     t2 = tick();
                     time_list += (t2 - t1);
-                    time_list -= (t4 - t3);
                     choice = 0;
                 }
                 else
@@ -164,20 +152,9 @@ int main(void)
             if (rc != -1)
             {
                 t3 = tick();
-                for (int i = 0; i < iter_occupied_addresses; i++)
-                {
-                    if (occupied_addresses[i] == pop_node)
-                    {
-                        //printf("\nfound in occupied\n");
-                        memmove(occupied_addresses + i, occupied_addresses + i + 1, (iter_occupied_addresses - i - 1) * sizeof(int));
-                        iter_occupied_addresses--;
-                        break;
-                    }
-                }
-
-                free_adderesses[iter_free_addresses] = pop_node;
-                iter_free_addresses++;
+                add_remove_addresses(occupied_addresses, free_adderesses, &iter_occupied_addresses, &iter_free_addresses, pop_node);
                 t4 = tick();
+                time_list -= (t4 - t3);
                 printf("Element %d was popped from list_array.\n", pop_value);
                 printf("Memory address: %p\n\n", pop_node);
                 size_stack_list--;
@@ -188,7 +165,6 @@ int main(void)
             }
             t2 = tick();
             time_list += (t2 - t1);
-            time_list -= (t4 - t3);
             choice = 0;
         }
         if (choice == 3)
@@ -199,12 +175,11 @@ int main(void)
             time_array += (t2 - t1);
 
             t1 = tick();
-            task_list(&stack_list);
+            task_list(&stack_list, free_adderesses, &iter_free_addresses);
             t2 = tick();
             time_list += (t2 - t1);
 
             iter_occupied_addresses = 0;
-            iter_free_addresses = 0;
             size_stack_list = 0;
 
             choice = 0;
@@ -228,7 +203,7 @@ int main(void)
                 printf("All memory is free.\n\n");
             else
             {
-                printf("Occupied memory:\n");
+                printf("\nOccupied memory:\n");
                 if (iter_occupied_addresses > 0)
                 {
                     for (int i = 0; i < iter_occupied_addresses; i++)
@@ -251,10 +226,13 @@ int main(void)
         }
         if (choice == 6)
         {
-            printf("\nTime spent for processing stack as an array (in ticks): (I64u) %u\n", (unsigned int) time_array);
-            printf("Memory outlay for stack as an array (in bytes): %u\n\n", (unsigned int) (sizeof(array_stack_t) + sizeof(int) * stack_array->top));
-            printf("Time spent for processing stack as a list (in ticks): (I64u) %u\n", (unsigned int) time_list);
-            printf("Memory outlay for stack as a list (in bytes): %u\n\n", (unsigned int) (sizeof(list_stack_node) * size_stack_list));
+            printf("\nTime spent for processing stack as an array and as a list(in ticks):\n");
+            print_sep(20);
+            printf("%10s|%-10s\n", "array", "list");
+            printf("%10lu|%-10lu\n", (unsigned long int) time_array, (unsigned long int) time_list);
+            print_sep(20);
+            printf("\nMemory outlay for stack as an array (in bytes): %u\n\n", (unsigned int) (sizeof(array_stack_t) + sizeof(int) * stack_array->top));
+            printf("Memory outlay for stack as a list (in bytes): %u\n\n", (unsigned int) (sizeof(list_stack_node) * size_stack_list + sizeof(int)));
             choice = 0;
         }
         if (choice == 7)
@@ -264,6 +242,5 @@ int main(void)
             return OK;
         }
     }
-
     return OK;
 }

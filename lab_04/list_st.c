@@ -1,6 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "my_types.h"
+
+
+void add_remove_addresses(list_stack_node *occupied[], list_stack_node *free[], int *n, int *m, list_stack_node *address)
+{
+    for (int i = 0; i < *n; i++)
+    {
+        if (occupied[i] == address)
+        {
+            memmove(occupied + i, occupied + i + 1, (*n - i - 1) * sizeof(int));
+            (*n)--;
+            free[*m] = address;
+            (*m)++;
+            return;
+        }
+    }
+    occupied[*n] = address;
+    (*n)++;
+    for (int i = 0; i < *m; i++)
+    {
+        if (free[i] == address)
+        {
+            memmove(free + i, free + i + 1, (*m - i - 1) * sizeof(int));
+            (*m)--;
+            return;
+        }
+    }
+}
 
 void delete_stack_list(list_stack_node *head)
 {
@@ -65,7 +93,7 @@ void print_stack_list(list_stack_node *head)
     printf("\n\n");
 }
 
-void task_list(list_stack_node **head)
+void task_list(list_stack_node **head, list_stack_node *free[], int *m)
 {
     if (*head == NULL)
     {
@@ -75,11 +103,15 @@ void task_list(list_stack_node **head)
     int rc = 0;
     list_stack_node *address = NULL;;
     int pop_first = pop_list(head, &address, &rc);
+    free[*m] = address;
+    (*m)++;
     printf("%d ", pop_first);
     int pop_second;
     while (*head != NULL)
     {
         pop_second = pop_list(head, &address, &rc);
+        free[*m] = address;
+        (*m)++;
         if (pop_second > pop_first)
             printf("%d ", pop_second);
         else

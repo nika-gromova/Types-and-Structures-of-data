@@ -54,3 +54,10 @@ int read_int(char *str, int n, int *value)
     }
     return INCORRECT_INPUT;
 }
+
+void print_sep(int n)
+{
+    for (int i = 0; i < n; i++)
+        printf("-");
+    printf("\n");
+}

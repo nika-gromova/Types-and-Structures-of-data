@@ -10,7 +10,7 @@ void info_menu(void)
 {
     printf("Press 1 - if you want to push element.\n");
     printf("Press 2 - if you want to pop element.\n");
-    printf("Press 3 - if you want to see all decreasing sets of numbers in stack in reversed order.\n");
+    printf("Press 3 - if you want to see decreasing number sets in stack in reversed order.\n");
     printf("Press 4 - if you want to look through the whole stack.\n");
     printf("Press 5 - if you want to look through the list of occupied and freed memory addresses.\n");
     printf("Press 6 - if you want to see time and memory outlays.\n");
@@ -32,7 +32,7 @@ int main(void)
     int choice = 0;
     char buf[20];
     int count_symb_in_input_line;
-    unsigned long long t1, t2, t3, t4, time_array = 0, time_list = 0;
+    unsigned long long t1, t2, time_array = 0, time_list = 0;
     int push_value;
     int pop_value;
     int rc = OK;
@@ -59,12 +59,9 @@ int main(void)
         }
     }
 
-    t1 = tick();
     stack_array = create_stack_arr(limit);
     if (stack_array == NULL)
         return MEMORY_ERROR;
-    t2 = tick();
-    time_array += (t2 - t1);
 
     while (1)
     {
@@ -94,6 +91,8 @@ int main(void)
                 {
                     t1 = tick();
                     stack_array = push_arr(stack_array, push_value);
+                    t2 = tick();
+                    time_array += (t2 - t1);
                     if (stack_array == NULL)
                     {
                         printf("\nStack overflow! Please pop some elements first.\n\n");
@@ -103,31 +102,26 @@ int main(void)
                         printf("Element %d was pushed to stack_array!\n\n", push_value);
 
                     }
-                    t2 = tick();
-                    time_array += (t2 - t1);
 
                     t1 = tick();
                     push_node = push_list(&stack_list, push_value);
+                    t2 = tick();
+                    time_list += (t2 - t1);
                     if (push_node == NULL)
                     {
                         return MEMORY_ERROR;
                     }
                     else
                     {
-                        t3 = tick();
                         add_remove_addresses(occupied_addresses, free_adderesses, &iter_occupied_addresses, &iter_free_addresses, push_node);
-                        t4 = tick();
-                        time_list -= (t4 - t3);
                         printf("Element %d was pushed to stack_list!\n\n", push_value);
                         size_stack_list++;
                     }
-                    t2 = tick();
-                    time_list += (t2 - t1);
                     choice = 0;
                 }
                 else
                 {
-                    printf("Incorrect input! You should enter only one integer number and press 'enter' :)\n");
+                    printf("`\n");
                     choice = 1;
                 }
             }
@@ -136,6 +130,8 @@ int main(void)
         {
             t1 = tick();
             pop_value = pop_arr(stack_array, &rc);
+            t2 = tick();
+            time_array += (t2 - t1);
             if (rc != -1)
             {
                 printf("\nElement %d was popped from stack_array.\n", pop_value);
@@ -144,17 +140,13 @@ int main(void)
             {
                 printf("\nStack_array is empty.\n");
             }
-            t2 = tick();
-            time_array += (t2 - t1);
-
             t1 = tick();
             pop_value = pop_list(&stack_list, &pop_node, &rc);
+            t2 = tick();
+            time_list += (t2 - t1);
             if (rc != -1)
             {
-                t3 = tick();
                 add_remove_addresses(occupied_addresses, free_adderesses, &iter_occupied_addresses, &iter_free_addresses, pop_node);
-                t4 = tick();
-                time_list -= (t4 - t3);
                 printf("Element %d was popped from list_array.\n", pop_value);
                 printf("Memory address: %p\n\n", pop_node);
                 size_stack_list--;
@@ -163,21 +155,19 @@ int main(void)
             {
                 printf("\nStack_list is empty.\n\n");
             }
-            t2 = tick();
-            time_list += (t2 - t1);
             choice = 0;
         }
         if (choice == 3)
         {
-            t1 = tick();
+            //t1 = tick();
             task_arr(stack_array);
-            t2 = tick();
-            time_array += (t2 - t1);
+            //t2 = tick();
+            //time_array += (t2 - t1);
 
-            t1 = tick();
+            //t1 = tick();
             task_list(&stack_list, free_adderesses, &iter_free_addresses);
-            t2 = tick();
-            time_list += (t2 - t1);
+            //t2 = tick();
+            //time_list += (t2 - t1);
 
             iter_occupied_addresses = 0;
             size_stack_list = 0;
@@ -186,15 +176,8 @@ int main(void)
         }
         if (choice == 4)
         {
-            t1 = tick();
             print_stack_arr(stack_array);
-            t2 = tick();
-            time_array += (t2 - t1);
-
-            t1 = tick();
             print_stack_list(stack_list);
-            t2 = tick();
-            time_list += (t2 - t1);
             choice = 0;
         }
         if (choice == 5)
@@ -231,7 +214,7 @@ int main(void)
             printf("%10s|%-10s\n", "array", "list");
             printf("%10lu|%-10lu\n", (unsigned long int) time_array, (unsigned long int) time_list);
             print_sep(20);
-            printf("\nMemory outlay for stack as an array (in bytes): %u\n\n", (unsigned int) (sizeof(array_stack_t) + sizeof(int) * stack_array->top));
+            printf("\nMemory outlay for stack as an array (in bytes): %u\n\n", (unsigned int) (sizeof(array_stack_t) + sizeof(int) * limit));
             printf("Memory outlay for stack as a list (in bytes): %u\n\n", (unsigned int) (sizeof(list_stack_node) * size_stack_list + sizeof(int)));
             choice = 0;
         }

@@ -30,27 +30,32 @@ int read_line(char *str, int n)
     return i;
 }
 
-int read_double(char *str, int n, double *value)
+int read_2double(char *str, int n, double *value1, double *value2)
 {
     int count = read_line(str, n);
     if (count <= 0)
         return INCORRECT_INPUT;
-    char *end= NULL;
-    double num = strtod(str, &end);
-    if (*end != '\0')
+    if (strchr(str, ' ') == NULL)
         return INCORRECT_INPUT;
-    if (num == 0.0 && count == 1)
+    char *nstr = strtok(str, " ");
+    if (nstr == NULL)
+        return INCORRECT_INPUT;
+    char *end= NULL;
+    double num[2];
+    int i;
+    for (i = 0; i < 2; i++)
     {
-        if (strcmp(str, "0") == 0)
-        {
-            *value = 0.0;
-            return OK;
-        }
+        num[i] = strtod(nstr, &end);
+        if (*end != '\0')
+            return INCORRECT_INPUT;
+        if (nstr)
+            nstr = strtok(NULL, " ");
+        else
+            return INCORRECT_INPUT;
     }
-    else if (num != 0)
-    {
-        *value = num;
-        return OK;
-    }
-    return INCORRECT_INPUT;
+    if (nstr)
+        return INCORRECT_INPUT;
+    *value1 = num[0];
+    *value2 = num[1];
+    return OK;
 }

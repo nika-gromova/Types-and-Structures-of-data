@@ -25,4 +25,12 @@ typedef struct queue_list_struct
     struct queue_list_node *tail;
 }queue_list_d;
 
+typedef struct time_st
+{
+    double start_in;
+    double end_in;
+    double start_proc;
+    double end_proc;
+}time_interval;
+
 #endif // MY_TYPES_H

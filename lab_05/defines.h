@@ -8,5 +8,6 @@
 #define QUEUE_OWERFLOW -2
 #define QUEUE_UNDERFLOW -3
 #define INCORRECT_INPUT -4
+#define EMPTY -5
 
 #endif // DEFINES_H

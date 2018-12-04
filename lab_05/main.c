@@ -10,7 +10,7 @@
 #include "queue_list.h"
 #include "io.h"
 
-#define MAX_PROCESSING 3000
+#define MAX_PROCESSING 2000
 #define CUR_CONDITION 100
 
 double get_rand_time(double t1, double t2)
@@ -79,17 +79,14 @@ int computing(time_interval t_q1, time_interval t_q2)
     double time_total_processing_1 = 0, time_total_processing_2 = 0;
     // общее время нахождения в очереди
     double time_total_waiting_1 = 0, time_total_waiting_2 = 0;
-    // общее время моделирования всей системы
-    double total_modeling_time = 0;
 
-    double t1 = 0, t2 = 0, tproc = 0, tinit = -1;
+    double t1 = 0, t2 = 0, tproc = 0;
     int type = 0;
     int count_avg = 0;
     int flag = 1;
     int flag_do_1 = -1;
+    double buf;
 
-    // расчетное время моделирования всей системы
-    double estimated_total_modeling_time = 0;
 
     double tmp1, tmp2, prev = 0, procprev = 0;
 
@@ -115,6 +112,8 @@ int computing(time_interval t_q1, time_interval t_q2)
     }
     count_in_2++;
     now_in_queue_2++;
+    t1 = get_rand_time(t_q1.start_in, t_q1.end_in);
+    t2 = get_rand_time(t_q2.start_in, t_q2.end_in);
 
 
     while (count_out_1 < 1000)
@@ -124,7 +123,7 @@ int computing(time_interval t_q1, time_interval t_q2)
             rc = pop_arr(queue_arr_1, &tmp1);
             if (rc != OK)
             {
-                if (pop_arr(queue_arr_2, &tmp2) == OK || tmp2 != -1)
+                if (tmp2 != -1 || pop_arr(queue_arr_2, &tmp2) == OK)
                     flag_do_1 = 0; // КОСТЫЛЬ ГИГАНТСКИЙ
                 else
                     rc = EMPTY;
@@ -135,28 +134,29 @@ int computing(time_interval t_q1, time_interval t_q2)
             rc = pop_arr(queue_arr_2, &tmp2);
             if (rc != OK)
             {
-                if (pop_arr(queue_arr_1, &tmp1) == OK || tmp1 != -1)
+                if (tmp1 != -1 || pop_arr(queue_arr_1, &tmp1) == OK)
                     flag_do_1 = 1; // КОСТЫЛЬ ГИГАНТСКИЙ 2.0
                 else
                     rc = EMPTY;
             }
         }
         flag = 0;
-        if (tinit < 0)
-            tinit = (time_arrival_1 <= time_arrival_2) ? time_arrival_1 : time_arrival_2;
         //printf("%.2lf %.2lf rc = %d ", tmp1, tmp2, rc);
         if (rc != EMPTY)
         {
             if (flag_do_1 == 1 || (tmp1 <= tmp2 && tmp1 > 0 && tmp2 > 0))
             {
+                time_total_processing_1 = time_total_processing;
                 tproc = get_rand_time(t_q1.start_proc, t_q1.end_proc);
-                //printf("%.2lf (1)", tproc);
+                //printf("%.2lf(1)", tproc);
                 type = 1;
                 count_out_1++;
-                offtime += ((procprev - fabs(tmp1 - prev)< 0) ? (fabs(procprev - fabs(tmp1 - prev))) : 0);
-                time_total_waiting_1 += ((procprev - (tmp1 - prev) > 0) ? (procprev - (tmp1 - prev)) : 0);
+                buf = fabs(tmp1 - prev) - procprev;
+                if (buf > 0)
+                    offtime += buf;
+                else
+                    time_total_waiting_1 += fabs(buf);
                 time_total_processing += tproc;
-                time_total_processing_1 += tproc;
                 procprev = tproc;
                 prev = tmp1;
                 now_in_queue_1--;
@@ -164,14 +164,17 @@ int computing(time_interval t_q1, time_interval t_q2)
             }
             else if (flag_do_1 == 0 || (tmp1 > tmp2 && tmp1 > 0 && tmp2 > 0))
             {
+                time_total_processing_2 = time_total_processing;
                 tproc = get_rand_time(t_q2.start_proc, t_q2.end_proc);
-                //("%.2lf (2)", tproc);
+                //printf("%.2lf(2)", tproc);
                 type = 2;
                 count_out_2++;
-                offtime += ((procprev - fabs(tmp2 - prev) < 0) ? (fabs(procprev - fabs(tmp2 - prev))) : 0);
-                time_total_waiting_2 += ((procprev - (tmp2 - prev) > 0) ? (procprev - (tmp2 - prev)) : 0);
+                buf = fabs(tmp2 - prev) - procprev;
+                if (buf > 0)
+                    offtime += buf;
+                else
+                    time_total_waiting_2 += fabs(buf);
                 time_total_processing += tproc;
-                time_total_processing_2 += tproc;
                 procprev = tproc;
                 prev = tmp2;
                 now_in_queue_2--;
@@ -181,10 +184,8 @@ int computing(time_interval t_q1, time_interval t_q2)
         else
             flag = 1;
 
-        t1 = get_rand_time(t_q1.start_in, t_q1.end_in);
-        t2 = get_rand_time(t_q2.start_in, t_q2.end_in);
-        //printf("new generated (1) = %.2lf, new generated(2) = %.2lf ", time_arrival_1 + t1, time_arrival_2 + t2);
-        if (time_total_processing + tinit + 5000 >= time_arrival_1 + t1 || flag == 1)
+        //printf("new generated (1) = %.2lf, new generated(2) = %.2lf ", t1, t2);
+        if (time_total_processing + time_total_waiting_1 >= t1 + time_arrival_1 || flag == 1)
         {
             time_arrival_1 += t1;
             rc = push_arr(queue_arr_1, time_arrival_1);
@@ -196,8 +197,9 @@ int computing(time_interval t_q1, time_interval t_q2)
             //printf(" *%.2lf* was pushed_1 ", time_arrival_1);
             count_in_1++;
             now_in_queue_1++;
+            t1 = get_rand_time(t_q1.start_in, t_q1.end_in);
         }
-        if (time_total_processing + tinit + 5000 >= time_arrival_2 + t2 || flag == 1)
+        if (time_total_processing + time_total_waiting_2 >= t2 + time_arrival_2 || flag == 1)
         {
             time_arrival_2 += t2;
             rc = push_arr(queue_arr_2, time_arrival_2);
@@ -209,6 +211,7 @@ int computing(time_interval t_q1, time_interval t_q2)
             //printf(" *%.2lf* was pushed_2 ", time_arrival_2);
             count_in_2++;
             now_in_queue_2++;
+            t2 = get_rand_time(t_q2.start_in, t_q2.end_in);
         }
         //printf("flag = %d\n", flag);
 
@@ -226,17 +229,35 @@ int computing(time_interval t_q1, time_interval t_q2)
             printf("Number of IN elemnets of FIRST queue: %d\n", count_in_1);
             printf("Number of IN elemnets of SECOND queue: %d\n", count_in_2);
             printf("Number of OUT elemnets of FIRST queue: %d\n", count_out_1);
-            printf("Number of OUT elemnets of SECOND queue: %d\n\n", count_out_2);
+            printf("Number of OUT elemnets of SECOND queue: %d\n", count_out_2);
+            printf("Average time in FIRST queue: %.2lf\n", time_total_waiting_1 / count_in_1);
+            printf("Average time in SECOND queue: %.2lf\n\n", time_total_waiting_2 / count_in_2);
         }
     }
-    tmp1 = ((t_q1.start_proc + t_q1.end_proc) / 2) * count_out_1 + ((t_q2.start_proc + t_q2.end_proc) / 2) * count_out_2;
-    tmp2 = ((t_q1.start_in + t_q1.end_in) / 2) * count_in_1 + ((t_q2.start_in + t_q2.end_in) / 2) * count_in_2;
-    estimated_total_modeling_time = (tmp1 > tmp2) ? (tmp1) : (tmp2);
+    printf("------\nofftime = %.2lf, wait_1 = %.2lf, wait_2 = %.2lf\n", offtime, time_total_waiting_1, time_total_waiting_2);
+    printf("time_arrival_1 = %.2lf, time_arrival_2 = %.2lf, time_total_proc = %.2lf\n", time_arrival_1, time_arrival_2, time_total_processing);
+    printf("count_out_1 = %d, count_out_2 = %d\n-------------\n", count_out_1, count_out_2);
+    double avg_in_1 = (t_q1.start_in + t_q1.end_in) / 2;
+    double avg_in_2 =  (t_q2.start_in + t_q2.end_in) / 2;
+    double avg_out_1 = (t_q1.start_proc + t_q1.end_proc) / 2;
+    double avg_out_2 = (t_q2.start_proc + t_q2.end_proc) / 2;
+    if ((avg_in_1 + avg_in_2) >= (avg_out_1 + avg_out_2))
+    {
+        printf("Estimated time IN for FIRST queue = %.2lf\n", avg_in_1 * count_in_1);
+        printf("Real time IN for FIRST queue = %.2lf\n", time_arrival_1);
+        printf("Margin of error: %.2lf %%\n", (fabs(avg_in_1 * count_in_1 - time_arrival_1) / (avg_in_1 * count_in_1) * 100));
+        printf("Estimated time IN for SECOND queue = %.2lf\n", avg_in_2 * count_in_2);
+        printf("Real time IN for SECOND queue = %.2lf\n", time_arrival_2);
+        printf("Margin of error: %.2lf %%\n", (fabs(avg_in_2 * count_in_2 - time_arrival_2) / (avg_in_2 * count_in_2) * 100));
+    }
+    else
+    {
+        double est = avg_out_1 * count_out_1 + avg_out_2 * count_out_2;
+        printf("Estimated time processing = %.2lf\n", est);
+        printf("Real time processing = %.2lf\n", time_total_processing);
+        printf("Margin of error: %.2lf %%\n", (fabs(est - time_total_processing) / (est) * 100));
+    }
 
-    tmp1 = time_total_processing;
-    tmp2 = (time_arrival_1 + time_arrival_2);
-    total_modeling_time = (tmp1 > tmp2) ? (tmp1) : (tmp2);
-    printf("---------------\n\n%.2lf\n%.2lf\n", estimated_total_modeling_time, total_modeling_time);
     printf("\n%d %d\n", count_in_1, count_in_2);
     printf("%.2lf %.2lf\n", time_arrival_1 / ((t_q1.start_in + t_q1.end_in) / 2), time_arrival_2 / ((t_q2.start_in + t_q2.end_in) / 2));
     printf("%.2lf\n", offtime);
@@ -245,6 +266,10 @@ int computing(time_interval t_q1, time_interval t_q2)
     free(queue_arr_1);
     free(queue_arr_2->data);
     free(queue_arr_2);
+    free_list(queue_list_1->head);
+    free(queue_list_1);
+    free(queue_list_2->head);
+    free(queue_list_2);
     return OK;
 }
 

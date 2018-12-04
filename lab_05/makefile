@@ -1,5 +1,5 @@
 CC := gcc
-PARAMS := -std=c99 -Wall -Werror
+PARAMS := -std=c99 -Wall
 
 ifeq ($(mode), debug)
 	PARAMS += -g3

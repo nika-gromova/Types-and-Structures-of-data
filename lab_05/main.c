@@ -11,7 +11,10 @@
 #include "io.h"
 
 #define MAX_PROCESSING 5000
-#define CUR_CONDITION 100
+#define EPS 1e-7
+
+#define IS_NULL(num) (fabs(num) <= EPS)
+#define IS_EQUAL(num1, num2) (fabs((num1) - (num2)) <= EPS)
 
 double get_rand_time(double t1, double t2)
 {
@@ -31,12 +34,10 @@ unsigned long long tick(void)
 
 int computing(time_interval t_q1, time_interval t_q2)
 {
-    // первая очередь в виде массива и в виде стека
+    // первая очередь в виде массива
     queue_array_d *queue_arr_1 = NULL;
-    queue_list_d *queue_list_1 = NULL;
-    // вторая очередь в виде массива и в виде стека
+    // вторая очередь в виде массива
     queue_array_d *queue_arr_2 = NULL;
-    queue_list_d *queue_list_2 = NULL;
 
     int rc = OK;
 
@@ -44,19 +45,7 @@ int computing(time_interval t_q1, time_interval t_q2)
     if (rc == OK)
     {
         rc = create_queue_arr(&queue_arr_2, MAX_PROCESSING);
-        if (rc == OK)
-        {
-            rc = create_queue_list(&queue_list_1, MAX_PROCESSING);
-            if (rc == OK)
-            {
-                rc = create_queue_list(&queue_list_2, MAX_PROCESSING);
-                if (rc != OK)
-                    return MEMORY_ERROR;
-            }
-            else
-                return MEMORY_ERROR;
-        }
-        else
+        if (rc != OK)
             return MEMORY_ERROR;
     }
     else
@@ -65,176 +54,148 @@ int computing(time_interval t_q1, time_interval t_q2)
     int count_in_1 = 0, count_in_2 = 0;
     // количество вышедших из системы элементов первого и второго типа
     int count_out_1 = 0, count_out_2 = 0;
-    //
-    int now_in_queue_1 = 0, now_in_queue_2 = 0;
-    //
+    // Переменные для подсчета средней длины очереди
     int sum_in_queue_1 = 0, sum_in_queue_2 = 0;
-    // общее время прихода для элементов первого и второго типа
-    double time_arrival_1 = 0, time_arrival_2 = 0;
+    int count_avg_1 = 0, count_avg_2 = 0;
+    // время прихода элементов первого и второго типа, время обработки
+    double time_1 = 0.0, time_2 = 0.0, time_proc = 0.0;
+    // общее время работы системы
+    double total_time = 0.0;
+    // общее время прихода первой и второй заявок
+    double time_arrival_1 = 0.0, time_arrival_2 = 0.0;
+    // общее время обработки первой и второй заявок
+    double total_time_processing_1 = 0.0, total_time_processing_2 = 0.0;
     // общее время простоя ОА
-    double offtime = 0;
-    // общее время обработки элементов первого и второго типа
-    double time_total_processing = 0;
-    //
-    double time_total_processing_1 = 0, time_total_processing_2 = 0;
+    double offtime = 0.0;
     // общее время нахождения в очереди
-    double time_total_waiting_1 = 0, time_total_waiting_2 = 0;
+    double time_total_waiting_1 = 0.0, time_total_waiting_2 = 0.0;
 
-
-    double t1 = 0, t2 = 0, tproc = 0;
+    // Тип обрабатываемой заявки
     int type = 0;
-    int count_avg = 0;
-    int flag = 1;
-    int flag_do_1 = -1;
-    double buf;
+    // Переменные для хранения временного результата
+    double buf, pop_value;
+    // Переменная для вывода промежуточного значения каждых 100 заявок первого типа
     int print_100 = 0;
+    // Временная переменная для текущего минимального времени
+    double t_min = 0.0;
 
+    //
+    double t1 = 0.0, t2 = 0.0;
 
-    double tmp1, tmp2, prev = 0, procprev = 0;
-
-    t1 = get_rand_time(t_q1.start_in, t_q1.end_in);
-    t2 = get_rand_time(t_q2.start_in, t_q2.end_in);
-
-    time_arrival_1 += t1;
-    rc = push_arr(queue_arr_1, time_arrival_1);
-    if (rc != OK)
-    {
-        printf("Queue overflow\n");
-        return rc;
-    }
-    count_in_1++;
-
-    time_arrival_2 += t2;
-    rc = push_arr(queue_arr_2, time_arrival_2);
-    if (rc != OK)
-    {
-        printf("Queue overflow\n");
-        return rc;
-    }
-    count_in_2++;
-    t1 = get_rand_time(t_q1.start_in, t_q1.end_in);
-    t2 = get_rand_time(t_q2.start_in, t_q2.end_in);
 
 
     while (count_out_1 < 1000)
-    {
-        if (type == 1 || flag == 1)
+    {        
+        if (IS_NULL(time_1))
         {
-            rc = pop_arr(queue_arr_1, &tmp1);
-            if (rc != OK)
-            {
-                if (tmp2 != -1 || pop_arr(queue_arr_2, &tmp2) == OK)
-                    flag_do_1 = 0;
-                else
-                    rc = EMPTY;
-            }
+            time_1 = get_rand_time(t_q1.start_in, t_q1.end_in);
+            time_arrival_1 += time_1;
+            t1 = time_1;
         }
-        if (type == 2 || flag == 1)
+        if (IS_NULL(time_2))
         {
-            rc = pop_arr(queue_arr_2, &tmp2);
-            if (rc != OK)
-            {
-                if (tmp1 != -1 || pop_arr(queue_arr_1, &tmp1) == OK)
-                    flag_do_1 = 1;
-                else
-                    rc = EMPTY;
-            }
+            time_2 = get_rand_time(t_q2.start_in, t_q2.end_in);
+            time_arrival_2 += time_2;
+            t2 = time_2;
         }
-        flag = 0;
-        //printf("%.2lf %.2lf rc = %d ", tmp1, tmp2, rc);
-        if (rc != EMPTY)
+
+        if (IS_NULL(time_proc))
         {
-            if (flag_do_1 == 1 || (tmp1 <= tmp2 && tmp1 > 0 && tmp2 > 0))
+            if (queue_arr_1->cur_count != 0)
             {
-                time_total_processing_1 = procprev;
-                tproc = get_rand_time(t_q1.start_proc, t_q1.end_proc);
-                //printf("%.2lf(1)", tproc);
+                time_proc = get_rand_time(t_q1.start_proc, t_q1.end_proc);
                 type = 1;
-                count_out_1++;
-                buf = fabs(tmp1 - prev) - procprev;
-                if (buf > 0)
-                    offtime += buf;
-                else
-                    time_total_waiting_1 += fabs(buf);
-                time_total_processing += tproc;
-                procprev = tproc;
-                prev = tmp1;
-                tmp1 = -1;
-                flag_do_1 = -1;
+                pop_arr(queue_arr_1, &pop_value);
+                buf = total_time - pop_value;
+                (buf > 0.0) ? (time_total_waiting_1 += buf) : (offtime += fabs(buf + time_proc));//
+                total_time_processing_1 += time_proc;
             }
-            else if (flag_do_1 == 0 || (tmp1 > tmp2 && tmp1 > 0 && tmp2 > 0))
+            else if (queue_arr_2->cur_count != 0)
             {
-                time_total_processing_2 = procprev;
-                tproc = get_rand_time(t_q2.start_proc, t_q2.end_proc);
-                //printf("%.2lf(2)", tproc);
+                time_proc = get_rand_time(t_q2.start_proc, t_q2.end_proc);
                 type = 2;
-                count_out_2++;
-                buf = fabs(tmp2 - prev) - procprev;
-                if (buf > 0)
-                    offtime += buf;
-                else
-                    time_total_waiting_2 += fabs(buf);
-                time_total_processing += tproc;
-                procprev = tproc;
-                prev = tmp2;
-                tmp2 = -1;
-                flag_do_1 = -1;
+                pop_arr(queue_arr_2, &pop_value);
+                buf = total_time - pop_value;
+                (buf > 0.0) ? (time_total_waiting_2 += buf) : (offtime += fabs(buf + time_proc));//
+                total_time_processing_2 += time_proc;
             }
+        }
+
+        if (IS_NULL(time_proc))
+        {
+            t_min = fmin(time_1, time_2);
         }
         else
-            flag = 1;
-
-        //printf("new generated (1) = %.2lf, new generated(2) = %.2lf ", t1, t2);
-        // УСЛОВИЕ???
-        if (procprev - time_total_processing_1 + time_arrival_1 >= t1 || flag == 1)
         {
-            time_arrival_1 += t1;
-            rc = push_arr(queue_arr_1, time_arrival_1);
-            if (rc != OK)
-            {
-                printf("Queue overflow\n");
-                return rc;
-            }
-            //printf(" *%.2lf* was pushed_1 ", time_arrival_1);
-            count_in_1++;
-            now_in_queue_1++;
-            t1 = get_rand_time(t_q1.start_in, t_q1.end_in);
+            t_min = fmin(time_1, fmin(time_2, time_proc));
         }
-        if (procprev - time_total_processing_2 + time_arrival_2 >= t2 || flag == 1)
-        {
-            time_arrival_2 += t2;
-            rc = push_arr(queue_arr_2, time_arrival_2);
-            if (rc != OK)
-            {
-                printf("Queue overflow\n");
-                return rc;
-            }
-            //printf(" *%.2lf* was pushed_2 ", time_arrival_2);
-            count_in_2++;
-            now_in_queue_2++;
-            t2 = get_rand_time(t_q2.start_in, t_q2.end_in);
-        }
-        //printf("flag = %d\n", flag);
 
-        sum_in_queue_1 += queue_arr_1->cur_count;
-        sum_in_queue_2 += queue_arr_2->cur_count;
-        count_avg++;
+        if (IS_EQUAL(t_min, time_proc))
+        {
+            time_proc = 0.0;
+            if (type == 1)
+                count_out_1++;
+            if (type == 2)
+                count_out_2++;
+        }
+
+        if (IS_EQUAL(t_min, time_1))
+        {
+            //time_arrival_1 = total_time + t1;
+            rc = push_arr(queue_arr_1, total_time + t1);
+            if (rc == OK)
+            {
+                count_in_1++;
+                sum_in_queue_1 += queue_arr_1->cur_count;
+                count_avg_1++;
+            }
+            else
+            {
+                printf("Queue overflow :(\n");
+                return MEMORY_ERROR;
+            }
+        }
+        if (IS_EQUAL(t_min, time_2))
+        {
+            //time_arrival_2 = total_time + t2;
+            rc = push_arr(queue_arr_2, total_time + t2);
+            if (rc == OK)
+            {
+                count_in_2++;
+                sum_in_queue_2 += queue_arr_2->cur_count;
+                count_avg_2++;
+            }
+            else
+            {
+                printf("Queue overflow :(\n");
+                return MEMORY_ERROR;
+            }
+        }
+
+        time_1 -= t_min;
+        time_2 -= t_min;
+        if (time_proc >= t_min)
+            time_proc -= t_min;
+        total_time += t_min;
+
         if (count_out_1 % 100 == 0 && count_out_1 != print_100)
         {
             printf("%d.\n", count_out_1);
             printf("Current length of FIRST queue: %d\n", queue_arr_1->cur_count);
             printf("Current length of SECOND queue: %d\n", queue_arr_2->cur_count);
-            printf("Average length of FIRST queue: %.2lf\n", (double)(sum_in_queue_1 / count_avg));
-            printf("Average length of SECOND queue: %.2lf\n", (double)(sum_in_queue_2 / count_avg));
+            printf("sum in 1: %d, avg = %d\n", sum_in_queue_1, count_avg_1);
+            printf("Average length of FIRST queue: %.2lf\n", (double)(sum_in_queue_1 / count_avg_1));
+            printf("Average length of SECOND queue: %.2lf\n", (double)(sum_in_queue_2 / count_avg_2));
             printf("Number of IN elemnets of FIRST queue: %d\n", count_in_1);
             printf("Number of IN elemnets of SECOND queue: %d\n", count_in_2);
             printf("Number of OUT elemnets of FIRST queue: %d\n", count_out_1);
-            printf("Number of OUT elemnets of SECOND queue: %d\n\n", count_out_2);
-            //printf("Average time in FIRST queue: %.4lf\n", time_total_waiting_1);
-            //printf("Average time in SECOND queue: %.4lf\n\n", time_total_waiting_1);
+            printf("Number of OUT elemnets of SECOND queue: %d\n", count_out_2);
+            //printf("Total time waiting in FIRST queue: %.4lf\n", time_total_waiting_1);
+            //printf("Total time waiting in SECOND queue: %.4lf\n\n", time_total_waiting_2);
             print_100 = count_out_1;
         }
     }
+    double tmp;
     double avg_in_1 = (t_q1.start_in + t_q1.end_in) / 2;
     double avg_in_2 =  (t_q2.start_in + t_q2.end_in) / 2;
     double avg_out_1 = (t_q1.start_proc + t_q1.end_proc) / 2;
@@ -242,41 +203,40 @@ int computing(time_interval t_q1, time_interval t_q2)
     printf("\n--------------------\n");
     if ((avg_in_1 + avg_in_2) >= (avg_out_1 + avg_out_2))
     {
+        if (avg_in_1 < avg_in_2)
+        {
+            tmp = avg_in_1;
+            avg_in_1 = avg_in_2;
+            avg_in_2 = tmp;
+        }
         printf("Estimated time IN for FIRST queue = %.2lf\n", avg_in_1 * count_in_1);
         printf("Real time IN for FIRST queue = %.2lf\n", time_arrival_1);
         printf("Margin of error: %.2lf %%\n", (fabs(avg_in_1 * count_in_1 - time_arrival_1) / (avg_in_1 * count_in_1) * 100));
-        printf("Estimated time IN for SECOND queue = %.2lf\n", avg_in_2 * count_in_2);
+        printf("Estimated time IN for SECOND queue = %.2lf\n", (avg_in_1 * count_in_1));
         printf("Real time IN for SECOND queue = %.2lf\n", time_arrival_2);
-        printf("Margin of error: %.2lf %%\n", (fabs(avg_in_2 * count_in_2 - time_arrival_2) / (avg_in_2 * count_in_2) * 100));
+        printf("Margin of error: %.2lf %%\n", (fabs((avg_in_1 * count_in_1) - time_arrival_2) / ((avg_in_1 * count_in_1)) * 100));
         printf("Offtime: %.2lf\n", offtime);
     }
     else
     {
         double est = avg_out_1 * count_out_1 + avg_out_2 * count_out_2;
         printf("Estimated time processing = %.2lf\n", est);
-        printf("Real time processing = %.2lf\n", time_total_processing);
-        printf("Margin of error: %.2lf %%\n", (fabs(est - time_total_processing) / (est) * 100));
+        printf("Real time processing = %.2lf\n", total_time_processing_1 + total_time_processing_2);
+        printf("Margin of error: %.2lf %%\n", (fabs(est - (total_time_processing_1 + total_time_processing_2)) / (est) * 100));
+        printf("Offtime: %.2lf\n", offtime);
     }
     printf("Number of IN elemnets of FIRST queue: %d\n", count_in_1);
     printf("Number of IN elemnets of SECOND queue: %d\n", count_in_2);
     printf("Number of OUT elemnets of FIRST queue: %d\n", count_out_1);
-    printf("Number of OUT elemnets of SECOND queue: %d\n", count_out_2);
-    printf("\nMemory outlay for queue as an array: %d\n", (int)(sizeof(double) * count_in_1 + sizeof(queue_array_d)));
-    printf("Memory outlay for queue as a list: %d\n", (int)(sizeof(queue_list_d) + sizeof(queue_list_n) * count_in_1));
+    printf("Number of OUT elemnets of SECOND queue: %d\n\n", count_out_2);
+    printf("\nMemory outlay for queue as an array: %d\n", (int)(sizeof(double) * MAX_PROCESSING + sizeof(queue_array_d)));
+    printf("Memory outlay for queue as a list: %d\n\n", (int)(sizeof(queue_list_d) + sizeof(queue_list_n) * count_in_1));
+    //printf("Total_time: %.4lf\n", total_time);
 
-
-    /*printf("\n%d %d\n", count_in_1, count_in_2);
-    printf("%.2lf %.2lf\n", time_arrival_1 / ((t_q1.start_in + t_q1.end_in) / 2), time_arrival_2 / ((t_q2.start_in + t_q2.end_in) / 2));
-    printf("%.2lf\n", offtime);
-    printf("%.2lf\n", time_total_processing + offtime);*/
     free(queue_arr_1->data);
     free(queue_arr_1);
     free(queue_arr_2->data);
     free(queue_arr_2);
-    free_list(queue_list_1->head);
-    free(queue_list_1);
-    free(queue_list_2->head);
-    free(queue_list_2);
     return OK;
 }
 

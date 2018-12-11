@@ -456,7 +456,7 @@ int main(void)
     time_interval time_q1 = { 1, 5, 0, 4 }, time_q2 = { 0, 3, 0, 1 };
 
     int rc = INCORRECT_INPUT;
-    unsigned long long t1, t2, t3, t4;
+    unsigned long long t1, t2;
 
     printf("Hello! This is a programme simulating the work of one serving device with two queues. The first one has more priority.\n");
     printf("The initial time of arriving for the first queque is [1,5] and for the second is [0,3]\n");
@@ -592,23 +592,14 @@ int main(void)
     }
 
 
-    t1 = tick();
     rc = computing(time_q1, time_q2);
-    t2 = tick();
     if (rc != OK)
         printf("\nrc = %d\n", rc);
     else
     {
-        t3 = tick();
         rc = computing_list(time_q1, time_q2);
-        t4 = tick();
         if (rc != OK)
             printf("\nrc = %d\n", rc);
-        else
-        {
-            printf("Time outlay for queue as an array: %lu\n", (unsigned long int)((t2 - t1)));
-            printf("Time outlay for queue as a list: %lu\n\n", (unsigned long int)((t4 - t3)));
-        }
     }
 
     queue_array_d *queue_arr = NULL;

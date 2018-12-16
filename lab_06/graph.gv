@@ -1,0 +1,8 @@
+digraph my_tree {
+a -> b;
+b -> abc;
+b -> f;
+abc -> aa;
+abc -> ad;
+f -> kkk;
+}

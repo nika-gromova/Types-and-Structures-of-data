@@ -2,5 +2,7 @@ defines.h
 io.c
 io.h
 main.c
+my_hash_table.c
+my_hash_table.h
 my_tree.h
 my_tree.c

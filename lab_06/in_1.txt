@@ -1,10 +1,7 @@
-a
-b
-abc
-ad
+e
+d
 f
-kkk
+b
 a
-a
-a
-aa
+c
+

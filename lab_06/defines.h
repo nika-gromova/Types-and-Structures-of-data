@@ -6,6 +6,7 @@
 #define OPEN_FILE_ERROR -2
 #define READ_FILE_ERROR -3
 #define MEMORY_ERROR -4
+#define NOT_FOUND -404
 
 #define MAX_STR_LEN 30
 

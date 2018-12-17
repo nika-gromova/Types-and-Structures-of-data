@@ -1,0 +1,7 @@
+end
+var
+for
+or
+and
+nil
+begin

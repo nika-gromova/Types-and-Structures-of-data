@@ -4,6 +4,9 @@
 #include "my_tree.h"
 
 #define MAX(num1, num2) ((num1) > (num2) ? (num1) : (num2))
+
+// стандартные функции для бинарного дерева
+
 tree_elem *create_node_tree(const char *word)
 {
     tree_elem *in = malloc(sizeof(tree_elem));
@@ -17,11 +20,19 @@ tree_elem *create_node_tree(const char *word)
     return in;
 }
 
+unsigned char get_height(tree_elem *node)
+{
+    return (node ? node->height : 0);
+}
+
 tree_elem *insert(tree_elem *tree, tree_elem *element)
 {
     int tmp;
     if (tree == NULL)
+    {
+        element->height = 1;
         return element;
+    }
     tmp = strcmp(tree->word, element->word);
     if (tmp > 0)
     {
@@ -31,17 +42,21 @@ tree_elem *insert(tree_elem *tree, tree_elem *element)
     {
         tree->right = insert(tree->right, element);
     }
+    tree->height = (MAX(get_height(tree->left), get_height(tree->right)) + 1);
     return tree;
 }
 
-tree_elem *search(tree_elem *tree, const char *word)
+tree_elem *search_tree(tree_elem *tree, const char *word, int *count_cmp)
 {
     int tmp;
-    while (tmp)
+    *count_cmp = 0;
+    while (tree)
     {
         tmp = strcmp(tree->word, word);
+        (*count_cmp)++;
         if (tmp == 0)
             return tree;
+        (*count_cmp)++;
         if (tmp > 0)
             tree = tree->left;
         else
@@ -59,26 +74,7 @@ void apply_pre(tree_elem *tree, void(*f)(tree_elem *, void*), void *arg)
     apply_pre(tree->right, f, arg);
 }
 
-int height(tree_elem *tree)
-{
-    int h1 = 0, h2 = 0;
-    if (tree == NULL)
-        return 0;
-    if (tree->left)
-    {
-        h1 = height(tree->left);
-    }
-    if (tree->right)
-    {
-        h2 = height(tree->right);
-    }
-    return (MAX(h1, h2) + 1);
-}
-
-unsigned int get_height(tree_elem *node)
-{
-    return (node ? node->height : 0);
-}
+// Балансировка
 
 int bfactor(tree_elem *node)
 {
@@ -87,7 +83,78 @@ int bfactor(tree_elem *node)
 
 void fix_hight(tree_elem *node)
 {
-    int h1 = get_height(node->left);
-    int h2 = get_height(node->right);
+    unsigned char h1 = get_height(node->left);
+    unsigned char h2 = get_height(node->right);
     node->height = MAX(h1, h2) + 1;
+}
+
+tree_elem *rotate_right(tree_elem *node)
+{
+    tree_elem *tmp = node->left;
+    node->left = tmp->right;
+    tmp->right = node;
+    fix_hight(node);
+    fix_hight(tmp);
+    return tmp;
+}
+
+tree_elem *rotate_left(tree_elem *node)
+{
+    tree_elem *tmp = node->right;
+    node->right = tmp->left;
+    tmp->left = node;
+    fix_hight(node);
+    fix_hight(tmp);
+    return tmp;
+}
+
+tree_elem *balance(tree_elem *node)
+{
+    fix_hight(node);
+    if (bfactor(node) == 2)
+    {
+        if (bfactor(node->right) < 0)
+            node->right = rotate_right(node->right);
+        return rotate_left(node);
+    }
+    if (bfactor(node) == -2)
+    {
+        if (bfactor(node->left) > 0)
+            node->left = rotate_left(node->left);
+        return rotate_right(node);
+    }
+    return node;
+}
+
+tree_elem *insert_balanced(tree_elem *tree, tree_elem *element)
+{
+    int tmp;
+    if (tree == NULL)
+    {
+        element->height = 1;
+        return element;
+    }
+    tmp = strcmp(tree->word, element->word);
+    if (tmp > 0)
+    {
+        tree->left = insert(tree->left, element);
+    }
+    else if (tmp < 0)
+    {
+        tree->right = insert(tree->right, element);
+    }
+    tree->height = (MAX(get_height(tree->left), get_height(tree->right)) + 1);
+    return balance(tree);
+}
+
+// Освобождение памяти из-под дерева
+
+void free_tree(tree_elem *tree)
+{
+    if (tree != NULL)
+    {
+        free_tree(tree->left);
+        free_tree(tree->right);
+        free(tree);
+    }
 }

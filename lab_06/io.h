@@ -10,5 +10,6 @@ int read_file_hash(const char *file_name, hash_table *table, int *count);
 void print_tree(tree_elem *tree);
 void print_hash(hash_table table);
 int count_elements(const char *file_name, int *count);
+int search_in_file(const char *file, const char *searching, int *count_cmp);
 
 #endif // IO_H

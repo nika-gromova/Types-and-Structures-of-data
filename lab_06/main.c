@@ -6,6 +6,13 @@
 #include "my_tree.h"
 #include "my_hash_table.h"
 
+unsigned long long tick(void)
+{
+    unsigned long d;
+    __asm__ __volatile__ ("rdtsc" : "=A"(d));
+    return d;
+}
+
 void info(void)
 {
     printf("1 - load data from file;\n");
@@ -34,6 +41,8 @@ int main(void)
     FILE *save;
     tree_elem *found_tree = NULL;
     t_node *found_hash = NULL;
+    unsigned long int t1, t2;
+    unsigned long int time_byn = 0, time_balanced = 0, time_hash = 0, time_file = 0;
     while (choice == 0)
     {
         info();
@@ -53,7 +62,10 @@ int main(void)
                     rc = read_file(file, &tree, &balanced_tree);
                     if (rc == OK)
                     {
-                        printf("loaded!\n");
+                        if (tree == NULL || balanced_tree == NULL)
+                            printf("empty file\n");
+                        else
+                            printf("loaded!\n");
                     }
                     else
                         printf("something wrong with loading(%d)\n", rc);
@@ -88,11 +100,10 @@ int main(void)
                 if (choice == 4)
                 {
                     free_hash_table(&table);
-                    printf("Input file name:\n");
-                    scanf("%s", file);
                     rc = count_elements(file, &(table.size));
                     if (rc == OK)
                     {
+                        table.size = generate_simple(table.size - 1);
                         create_table(&table, table.size);
                         rc = read_file_hash(file, &table, &count_col);
                         if (rc == OK)
@@ -100,6 +111,8 @@ int main(void)
                             printf("loaded!\n");
                             printf("count of collussions: %d\n", count_col);
                         }
+                        else if (rc == EMPTY_FILE)
+                            printf("empty file\n");
                         else
                             printf("something wrong with saving data\n");
                     }
@@ -123,36 +136,64 @@ int main(void)
                 {
                     printf("Input word for searching:\n");
                     scanf("%s", buf);
+                    printf("\n");
+
+                    t1 = tick();
                     found_tree = search_tree(tree, buf, &count_cmp);
+                    t2 = tick();
                     if (found_tree)
-                    {
                         printf("found in bynary tree: %s\n", found_tree->word);
-                        printf("number of comparisons: %d\n", count_cmp);
-                        found_tree = search_tree(balanced_tree, buf, &count_cmp);
-                        if (found_tree)
-                        {
-                            printf("found in balanced tree: %s\n", found_tree->word);
-                            printf("number of comparisons: %d\n", count_cmp);
-                            found_hash = search_hash(&table, buf, &count_cmp);
-                            if (found_hash)
-                            {
-                                printf("found in hash: %s\n", found_hash->word);
-                                printf("number of comparisons: %d\n", count_cmp);
-                            }
-                            else
-                                rc = NOT_FOUND;
-                        }
-                        else
-                            rc = NOT_FOUND;
-                    }
                     else
-                        rc = NOT_FOUND;
-                    if (rc == NOT_FOUND)
-                        printf("not found\n");
+                        printf("not found in bynary tree\n");
+                    printf("number of comparisons: %d\n\n", count_cmp);
+                    time_byn = t2 - t1;
+
+                    t1 = tick();
+                    found_tree = search_tree(balanced_tree, buf, &count_cmp);
+                    t2 = tick();
+                    if (found_tree)
+                        printf("found in balanced tree: %s\n", found_tree->word);
+                    else
+                        printf("not found in balanced tree\n");
+                    printf("number of comparisons: %d\n\n", count_cmp);
+                    time_balanced = t2 - t1;
+
+                    t1 = tick();
+                    found_hash = search_hash(&table, buf, &count_cmp);
+                    t2 = tick();
+                    if (found_hash)
+                        printf("found in hash: %s\n", found_hash->word);
+                    else
+                        printf("not found in hash\n");
+                    printf("number of comparisons: %d\n\n", count_cmp);
+                    time_hash = t2 - t1;
+
+                    t1 = tick();
+                    rc = search_in_file(file, buf, &count_cmp);
+                    t2 = tick();
+                    if (rc == FOUND)
+                        printf("found in file '%s': %s\n", file, buf);
+                    else
+                        printf("not found in file '%s'\n", file);
+                    printf("number of comparisons: %d\n\n", count_cmp);
+                    time_file = t2 - t1;
+
+                    rc = OK;
                     choice = 0;
                 }
                 if (choice == 8)
                 {
+                    printf("\nTime outlays for searching word in diffrent data structures:\n");
+                    printf("bynary tree: %lu\n", time_byn);
+                    printf("balanced tree: %lu\n", time_balanced);
+                    printf("hash table: %lu\n", time_hash);
+                    printf("file: %lu\n", time_file);
+
+                    printf("\nMemory outlays:\n");
+                    printf("bynary tree: %ld\n", (long int)(sizeof(tree_elem) * table.size));
+                    printf("balanced tree: %ld\n", (long int)(sizeof(tree_elem) * table.size));
+                    printf("hash table: %ld\n", (long int)(sizeof(t_node) * table.size + sizeof(table)));
+                    printf("file: %ld\n\n", (long int)sizeof(file));
                     choice = 0;
                 }
                 if (choice == 9)

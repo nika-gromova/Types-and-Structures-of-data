@@ -87,6 +87,36 @@ int read_file(const char *file_name, tree_elem **tree, tree_elem **balanced_tree
     return rc;
 }
 
+int search_in_file(const char *file, const char *searching, int *count_cmp)
+{
+    *count_cmp = 0;
+    char buf[MAX_STR_LEN + 1];
+    int rc = OK;
+    int length;
+    FILE *f = fopen(file, "r");
+    if (f)
+    {
+        while (rc == OK && fgets(buf, sizeof(buf), f))
+        {
+            length = strlen(buf);
+            if (buf[length - 1] != '\n')
+                rc = INPUT_ERROR;
+            buf[length - 1] = '\0';
+            length--;
+            if (length > 0)
+            {
+                (*count_cmp)++;
+                if (strcmp(buf, searching) == 0)
+                    rc = FOUND;
+            }
+        }
+        fclose(f);
+    }
+    if (rc != FOUND)
+        rc = NOT_FOUND;
+    return rc;
+}
+
 int count_elements(const char *file_name, int *count)
 {
     *count = 0;
@@ -122,6 +152,7 @@ int read_file_hash(const char *file_name, hash_table *table, int *count)
     char buf[MAX_STR_LEN + 1];
     int rc = OK;
     int length;
+    int flag = 0;
     FILE *f = fopen(file_name, "r");
     if (f)
     {
@@ -134,6 +165,7 @@ int read_file_hash(const char *file_name, hash_table *table, int *count)
             length--;
             if (length > 0)
             {
+                flag = 1;
                 in = create_list_elem(buf);
                 if (in)
                 {
@@ -150,6 +182,8 @@ int read_file_hash(const char *file_name, hash_table *table, int *count)
     }
     else
         return OPEN_FILE_ERROR;
+    if (flag == 0)
+        rc = EMPTY_FILE;
     return rc;
 }
 

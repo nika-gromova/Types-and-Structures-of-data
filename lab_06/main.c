@@ -210,5 +210,8 @@ int main(void)
     tree = NULL;
     balanced_tree = NULL;
     free_hash_table(&table);
+    //printf("%ld\n", (long int)sizeof(tree_elem));
+    //printf("%ld\n", (long int)sizeof(t_node));
+    //printf("%ld\n", (long int)sizeof(hash_table));
     return rc;
 }

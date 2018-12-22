@@ -21,6 +21,8 @@ int **allocate_matrix(int n, int m)
 
 void free_matrix(int **matrix, int n)
 {
+	if (matrix == NULL)
+		return;
     for (int i = 0; i < n; i++)
         free(matrix[i]);
     free(matrix);

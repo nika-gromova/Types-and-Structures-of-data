@@ -149,6 +149,9 @@ int main(void)
                 if (choice == 1)
                 {
                     free_all(matrix, visited, &n, &count_edges, edges);
+					matrix = NULL;
+					visited = NULL;
+					edges = NULL;
                     printf("Input file name:\n");
                     scanf("%s", file);
                     f = fopen(file, "r");
@@ -173,6 +176,9 @@ int main(void)
                 if (choice == 2)
                 {
                     free_all(matrix, visited, &n, &count_edges, edges);
+					matrix = NULL;
+					visited = NULL;
+					edges = NULL;
                     printf("input number of nodes of the graph (n) and number of paths (m) and then input connected nodes:\n");
                     printf("Example:\n5 2\n1 4\n2 3\n");
                     rc = read_data(stdin, &matrix, &n, &count_edges);

@@ -1,3 +1,4 @@
 **/*.exe
 **/*.o
 **/*.creator.user.*
+**/*.creator.user*

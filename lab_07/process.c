@@ -61,9 +61,21 @@ void zero(int *arr, int n)
         arr[i] = 0;
 }
 
+void zero_matrix(int **matrix, int n)
+{
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            matrix[i][j] = 0;
+}
+
 int find_del(edge_t *edges, int count_edges, int **matrix, int n, int *visited, int *del_1, int *del_2, int *del_3, int a, int b)
 {
     int find = 1;
+    if (count_edges <= 3)
+    {
+        zero_matrix(matrix, n);
+        return -1;
+    }
     for (int i = 0; i < count_edges && find; i++)
     {
         for (int j = i + 1; j < count_edges && j > i && find; j++)

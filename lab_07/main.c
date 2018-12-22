@@ -20,15 +20,6 @@ void print_edges(edge_t *edges, int m)
         printf("%d %d\n", edges[i].row, edges[i].column);
 }
 
-
-
-void zero_matrix(int **matrix, int n)
-{
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            matrix[i][j] = 0;
-}
-
 unsigned long long tick(void)
 {
     unsigned long d;
@@ -61,7 +52,7 @@ int read_data(FILE *f, int ***matrix, int *n, int *not_null)
     int rc = OK;
     int i = 0, j = 0;
     fscanf(f, "%d %d", n, not_null);
-    if (*n > 0 && *not_null > 0 && *not_null <= (*n) * (*n))
+    if (*n > 0 && *not_null > 0 && *not_null <= ((*n) * (*n) - *n) / 2)
     {
         buf = allocate_matrix(*n, *n);
         if (buf)
@@ -164,7 +155,7 @@ int main(void)
                             choice = 0;
                         }
                         else
-                            printf("incorrect input:( try again\n");
+                            printf("Errors in reading data from file:( try again\n");
                         fclose(f);
                     }
                     else
@@ -233,15 +224,19 @@ int main(void)
                                     t1 = tick();
                                     rc = find_del(edges, count_edges, matrix, n, visited, &del_1, &del_2, &del_3, A, B);
                                     t2 = tick();
-                                    if (rc)
+                                    if (rc == 1)
                                         printf("There are no variants to close 3 paths and make B inaccessible from A.\n");
-                                    else
+                                    else if (rc == 0)
                                     {
                                         printf("There is a variant to close 3 paths and make B inaccessible from A.\n");
                                         printf("\nClosing paths:\n");
                                         printf("%d <-> %d\n", edges[del_1].row, edges[del_1].column);
                                         printf("%d <-> %d\n", edges[del_2].row, edges[del_2].column);
                                         printf("%d <-> %d\n", edges[del_3].row, edges[del_3].column);
+                                    }
+                                    else if (rc == -1)
+                                    {
+                                        printf("There is a variant to close all %d roads\n", count_edges);
                                     }
                                     printf("\nTime outlays: %lu\n", (unsigned long) (t2 - t1));
                                     free(visited);
@@ -272,7 +267,6 @@ int main(void)
         else
             printf("input again:\n");
     }
-
     free_all(matrix, visited, &n, &count_edges, edges);
     return 0;
 }
